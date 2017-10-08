@@ -6,7 +6,7 @@ import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Fiber, launchAff, delay)
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
-import Data.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote)
+import Data.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote, playNotes)
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =
@@ -20,6 +20,16 @@ noteSampleC = note 0 60 0.0 0.5 1.0
 
 noteSampleE :: MidiNote
 noteSampleE = note 0 64 0.0 0.5 1.0
+
+notesSample :: Array MidiNote
+notesSample =
+ [ note 0 60 1.0 0.5 1.0
+ , note 0 62 1.5 0.5 1.0
+ , note 0 64 2.0 0.5 1.0
+ , note 0 65 2.5 0.5 1.0
+ , note 0 67 3.0 1.5 1.0
+ , note 0 71 3.0 1.5 1.0
+ ]
 
 {- just for debug
 main :: ∀ e.
@@ -45,9 +55,11 @@ main :: ∀ eff.
 main = launchAff $ do
   -- instrument <- loadInstrument "acoustic_grand_piano"
   instrument <- loadInstrument "marimba"
-  da <- liftEff $ playNote noteSampleA instrument
+  da <- liftEff $ playNote instrument noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
-  db <- liftEff $ playNote noteSampleC instrument
+  db <- liftEff $ playNote instrument noteSampleC
   _ <- delay (Milliseconds $ 1000.0 * db)
-  liftEff $ playNote noteSampleE instrument
+  de <- liftEff $ playNote instrument noteSampleE
+  _ <- delay (Milliseconds $ 1000.0 * de)
+  liftEff $ playNotes instrument notesSample
   -- pure font

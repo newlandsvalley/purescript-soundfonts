@@ -5,9 +5,10 @@ module Data.SoundFont (
   , logLoadResource
   , loadInstrument
   , playNote
+  , playNotes
   ) where
 
-import Prelude (Unit, bind, id, pure, show, ($), (<>), (<<<))
+import Prelude (Unit, bind, id, map, pure, show, ($), (<>), (<<<))
 import Control.Monad.Eff (kind Effect, Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
@@ -15,9 +16,10 @@ import Control.Monad.Aff (Aff, Fiber, launchAff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
+import Data.Array (head, reverse)
 import Data.Map (Map, lookup, empty)
-import Data.Maybe (Maybe(..))
-import Data.Traversable (traverse)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Traversable (traverse, sequenceDefault)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
@@ -48,17 +50,17 @@ type MidiNote =
 type FontNote =
   { buffer  ::  AudioBuffer  -- the Audio buffer for a particular note on a particular instrument
   , timeOffset :: Number     -- the time delay in seconds before the note is played
-  , duration :: Number       -- the duration of the note
+  , duration :: Number       -- the duration of the note (sec)
   , gain :: Number           -- the volume (between 0 and 1)
   }
 
-fontNote :: AudioBuffer -> FontNote
-fontNote buffer =
+fontNote :: AudioBuffer -> MidiNote -> FontNote
+fontNote buffer n =
   {
     buffer : buffer
-  , timeOffset : 0.1
-  , duration : 0.5
-  , gain : 1.0
+  , timeOffset : n.timeOffset
+  , duration : n.duration
+  , gain : n.gain
   }
 
 
@@ -75,11 +77,29 @@ decodeAudioBuffer =
 foreign import playFontNote
   :: forall eff. FontNote -> Eff (au :: AUDIO | eff) Number
 
-playNote :: forall eff. MidiNote -> Instrument -> Eff (au :: AUDIO | eff) Number
-playNote note instrument =
+playNote :: forall eff. Instrument -> MidiNote -> Eff (au :: AUDIO | eff) Number
+playNote instrument note =
   case lookup note.id instrument of
-    Just b -> playFontNote $ fontNote b
+    Just b -> playFontNote $ fontNote b note
     _ -> pure 0.0
+
+-- | play a bunch of notes asynchronously
+-- | return the duration of the phrase
+-- | (i.e. the time offset plus duration of the last note in the phrase)
+playNotes :: forall eff. Instrument -> Array MidiNote -> Eff (au :: AUDIO | eff) Number
+playNotes instrument notes =
+  let
+    pns = map (playNote instrument) notes
+  in
+    map lastDuration (sequenceDefault pns)
+
+-- | return the overall duration of the last note played from a sequence of notes
+lastDuration :: Array Number -> Number
+lastDuration fs =
+  let
+    last = head $ reverse fs
+  in
+    fromMaybe 0.0 last
 
 -- | just for debug
 logLoadResource  :: ∀ e.
