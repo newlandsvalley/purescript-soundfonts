@@ -1,0 +1,9 @@
+/bower_components/
+/node_modules/
+/.pulp-cache/
+/output/
+/generated-docs/
+/dist/purescript-soundfonts.js
+/.psc*
+/.purs*
+/.psa*
