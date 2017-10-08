@@ -12,11 +12,11 @@ All that has been provided so far is a proof of concept.  A SoundFont can be loa
 
 ## Build
 
-   bower install
-   pulp build
+    bower install   
+    pulp build
    
 ## Example
 
-   ./build.sh
+    ./build.sh
 
 and then navigate to dist/index.html
