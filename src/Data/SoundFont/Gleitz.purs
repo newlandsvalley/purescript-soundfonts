@@ -8,7 +8,8 @@ module Data.SoundFont.Gleitz (
   , debugNoteName
   ) where
 
-import Prelude ((<>), (<<<), ($), (+), (*), map, join, negate, show)
+
+import Prelude ((<>), ($), (+), (*), map, negate, show)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.String (toUpper)
@@ -17,7 +18,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Int (fromString)
 import Data.Array (index)
 import Data.Tuple (Tuple(..))
-import Data.StrMap (StrMap(..), fromFoldable, lookup)
+import Data.StrMap (StrMap, fromFoldable, lookup)
 import Partial.Unsafe (unsafePartial)
 
 -- | Provide descriptions of MIDI.js from https://github.com/gleitz/midi-js-soundfonts

@@ -2,13 +2,11 @@ module Main where
 
 import Prelude (bind, ($), (*))
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Aff (Aff, Fiber, launchAff, delay)
+import Control.Monad.Aff (Fiber, launchAff, delay)
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
 import Data.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote)
-
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =
@@ -23,7 +21,7 @@ noteSampleC = note 0 60 0.0 0.5 1.0
 noteSampleE :: MidiNote
 noteSampleE = note 0 64 0.0 0.5 1.0
 
-{-}
+{- just for debug
 main :: ∀ e.
   Eff (ajax :: AJAX, console :: CONSOLE | e) (Fiber (ajax :: AJAX, console :: CONSOLE | e) Unit)
 main = do

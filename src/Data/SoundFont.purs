@@ -5,10 +5,9 @@ module Data.SoundFont (
   , logLoadResource
   , loadInstrument
   , playNote
-  )where
+  ) where
 
-import Prelude (Unit, bind, const, id, map, pure, show, ($), (<>), (<<<))
-import Control.Monad (liftM1)
+import Prelude (Unit, bind, id, pure, show, ($), (<>), (<<<))
 import Control.Monad.Eff (kind Effect, Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
@@ -16,14 +15,13 @@ import Control.Monad.Aff (Aff, Fiber, launchAff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
-import Data.Map (Map(..), lookup, empty)
+import Data.Map (Map, lookup, empty)
 import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
-import Data.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteNames, debugNoteIds)
-
+import Data.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteIds)
 
 -- | The SoundFont API which we will expose
 
@@ -83,7 +81,7 @@ playNote note instrument =
     Just b -> playFontNote $ fontNote b
     _ -> pure 0.0
 
-
+-- | just for debug
 logLoadResource  :: ∀ e.
   InstrumentName ->
   Eff (ajax :: AJAX, console :: CONSOLE | e) (Fiber (ajax :: AJAX, console :: CONSOLE | e) Unit)
@@ -93,27 +91,27 @@ logLoadResource instrument =
   in
     launchAff $ do
       res <- affjax $ defaultRequest { url = url, method = Left GET }
-      -- liftEff $ log $ "GET soundfont response: " <> res.response
 
       let
         ejson = midiJsToNoteMap instrument res.response
       liftEff $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
 
-{-}
-loadInstrument  :: ∀ e.
-  InstrumentName ->
-  Eff (ajax :: AJAX | e) (Fiber (ajax :: AJAX | e) NoteMap)
-  -}
+loadInstrument :: ∀ e.
+        String
+        -> Aff
+             ( ajax :: AJAX
+             , au :: AUDIO
+             | e
+             )
+             Instrument
 loadInstrument instrumentName =
   let
     url = gleitzUrl instrumentName MusyngKite OGG
   in
     do
       res <- affjax $ defaultRequest { url = url, method = Left GET }
-
       let
         ejson = midiJsToNoteMap instrumentName res.response
         noteMap = either (\_ -> empty) id ejson
-        -- instrument :: Instrument
       instrument <- traverse decodeAudioBuffer noteMap
       pure instrument
