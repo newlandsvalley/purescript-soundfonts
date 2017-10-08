@@ -17,6 +17,6 @@ All that has been provided so far is a proof of concept.  A SoundFont can be loa
    
 ## Example
 
-    ./build.sh
+    ./build-example.sh
 
 and then navigate to dist/index.html
