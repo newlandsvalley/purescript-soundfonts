@@ -1,4 +1,4 @@
-module Data.SoundFont (
+module Audio.SoundFont (
     AUDIO
   , AudioBuffer
   , MidiNote
@@ -25,8 +25,8 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse, sequenceDefault)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
-import Data.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
-import Data.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteIds)
+import Audio.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
+import Audio.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteIds)
 
 -- | The SoundFont API which we will expose
 

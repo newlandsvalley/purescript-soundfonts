@@ -7,7 +7,7 @@ import Control.Monad.Aff (Fiber, launchAff, delay)
 import Data.Tuple (Tuple(..))
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
-import Data.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote, playNotes)
+import Audio.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote, playNotes)
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =

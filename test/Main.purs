@@ -10,7 +10,7 @@ import Test.Unit (TestF, suite, test)
 import Test.Unit.Main (runTest)
 import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Assert as Assert
-import Data.SoundFont.Gleitz (midiPitch)
+import Audio.SoundFont.Gleitz (midiPitch)
 
 gleitzSuite :: forall t. Free (TestF t) Unit
 gleitzSuite =

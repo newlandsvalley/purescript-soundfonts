@@ -1,4 +1,4 @@
-module Data.SoundFont.Decoder (
+module Audio.SoundFont.Decoder (
     NoteMap
   , midiJsToNoteMap
   , debugNoteNames
@@ -8,7 +8,7 @@ import Prelude ((<>), ($), (+), map, show)
 import Data.Either (Either(..))
 import Data.Maybe(Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
-import Data.SoundFont.Gleitz (InstrumentName, debugNoteName, midiPitch)
+import Audio.SoundFont.Gleitz (InstrumentName, debugNoteName, midiPitch)
 import Data.Argonaut.Core (Json, JObject, foldJsonObject, foldJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))

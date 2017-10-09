@@ -1,4 +1,4 @@
-module Data.SoundFont.Gleitz (
+module Audio.SoundFont.Gleitz (
     RecordingFormat(..)
   , SoundFontType(..)
   , InstrumentName
