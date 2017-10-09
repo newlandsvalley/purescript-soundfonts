@@ -10,6 +10,7 @@ module Audio.SoundFont (
   ) where
 
 import Prelude (Unit, bind, id, map, pure, show, ($), (<>), (<<<))
+import Control.Monad (liftM1)
 import Control.Monad.Eff (kind Effect, Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
@@ -60,7 +61,11 @@ type FontNote =
   , gain :: Number           -- the volume (between 0 and 1)
   }
 
--- | load a bunch of instrument SoundFonts (in parallel)
+-- | can the browser play ogg format ?
+foreign import canPlayOgg
+  :: forall eff. (Eff (au :: AUDIO | eff) Boolean)
+
+-- | load a single instrument SoundFont
 loadInstrument :: ∀ e.
   InstrumentName
   -> Aff
@@ -69,19 +74,18 @@ loadInstrument :: ∀ e.
      | e
      )
      InstrumentMap
-loadInstrument instrumentName =
+loadInstrument instrumentName = do
+  recordingFormat <- liftEff prefferedRecordingFormat
   let
-    url = gleitzUrl instrumentName MusyngKite OGG
-  in
-    do
-      res <- affjax $ defaultRequest { url = url, method = Left GET }
-      let
-        ejson = midiJsToNoteMap instrumentName res.response
-        noteMap = either (\_ -> empty) id ejson
-      instrument <- traverse decodeAudioBuffer noteMap
-      pure (Tuple instrumentName instrument)
+    url = gleitzUrl instrumentName MusyngKite recordingFormat
+  res <- affjax $ defaultRequest { url = url, method = Left GET }
+  let
+    ejson = midiJsToNoteMap instrumentName res.response
+    noteMap = either (\_ -> empty) id ejson
+  instrument <- traverse decodeAudioBuffer noteMap
+  pure (Tuple instrumentName instrument)
 
--- | load a single instrument SoundFont
+-- | load a bunch of instrument SoundFonts (in parallel)
 loadInstruments :: ∀ e.
   Array InstrumentName
   -> Aff
@@ -145,6 +149,11 @@ logLoadResource instrument =
       let
         ejson = midiJsToNoteMap instrument res.response
       liftEff $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
+
+-- | use OGG if we can, otherwise default to MP3
+prefferedRecordingFormat :: ∀ eff. (Eff (au :: AUDIO | eff) RecordingFormat)
+prefferedRecordingFormat =
+  liftM1 (\b -> if b then OGG else MP3) canPlayOgg
 
 -- | turn a MIDI note (and audio buffer) into a font note (suitable for JS)
 fontNote :: AudioBuffer -> MidiNote -> FontNote
