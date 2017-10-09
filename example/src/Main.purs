@@ -4,6 +4,7 @@ import Prelude (bind, ($), (*))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Fiber, launchAff, delay)
+import Data.Tuple (Tuple(..))
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
 import Data.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, playNote, playNotes)
@@ -40,21 +41,21 @@ main = do
 -}
 
 main :: ∀ eff.
-        Eff
-          ( ajax :: AJAX
-          , au :: AUDIO
-          | eff
-          )
-          (Fiber
-             ( ajax :: AJAX
-             , au :: AUDIO
-             | eff
-             )
-             Number
-          )
+  Eff
+    ( ajax :: AJAX
+    , au :: AUDIO
+    | eff
+    )
+    (Fiber
+       ( ajax :: AJAX
+       , au :: AUDIO
+       | eff
+       )
+       Number
+    )
 main = launchAff $ do
   -- instrument <- loadInstrument "acoustic_grand_piano"
-  instrument <- loadInstrument "marimba"
+  (Tuple name instrument) <- loadInstrument "marimba"
   da <- liftEff $ playNote instrument noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
   db <- liftEff $ playNote instrument noteSampleC

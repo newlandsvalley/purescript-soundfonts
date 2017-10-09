@@ -4,6 +4,7 @@ module Data.SoundFont (
   , MidiNote
   , logLoadResource
   , loadInstrument
+  , loadInstruments
   , playNote
   , playNotes
   ) where
@@ -14,11 +15,13 @@ import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Aff, Fiber, launchAff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
+import Control.Parallel (parallel, sequential, parTraverse_)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
 import Data.Array (head, reverse)
 import Data.Map (Map, lookup, empty)
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse, sequenceDefault)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
@@ -27,15 +30,18 @@ import Data.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteIds)
 
 -- | The SoundFont API which we will expose
 
-
 -- | Audio Effect
 foreign import data AUDIO :: Effect
 
+-- | the Audio Buffer for a single note
 foreign import data AudioBuffer :: Type
 
 -- | the instrument fonts
 -- | a mapping between MIDI pitch and the note's AudioBuffer
 type Instrument = Map Int AudioBuffer
+
+-- | the mapping of an instrument name to its SoundFont
+type InstrumentMap = Tuple InstrumentName Instrument
 
 -- | A Midi Note
 type MidiNote =
@@ -54,15 +60,38 @@ type FontNote =
   , gain :: Number           -- the volume (between 0 and 1)
   }
 
-fontNote :: AudioBuffer -> MidiNote -> FontNote
-fontNote buffer n =
-  {
-    buffer : buffer
-  , timeOffset : n.timeOffset
-  , duration : n.duration
-  , gain : n.gain
-  }
+-- | load a bunch of instrument SoundFonts (in parallel)
+loadInstrument :: ∀ e.
+  InstrumentName
+  -> Aff
+     ( ajax :: AJAX
+     , au :: AUDIO
+     | e
+     )
+     InstrumentMap
+loadInstrument instrumentName =
+  let
+    url = gleitzUrl instrumentName MusyngKite OGG
+  in
+    do
+      res <- affjax $ defaultRequest { url = url, method = Left GET }
+      let
+        ejson = midiJsToNoteMap instrumentName res.response
+        noteMap = either (\_ -> empty) id ejson
+      instrument <- traverse decodeAudioBuffer noteMap
+      pure (Tuple instrumentName instrument)
 
+-- | load a single instrument SoundFont
+loadInstruments :: ∀ e.
+  Array InstrumentName
+  -> Aff
+     ( ajax :: AJAX
+     , au :: AUDIO
+     | e
+     )
+     (Array InstrumentMap)
+loadInstruments instrumentNames =
+  sequential $ traverse (\name -> parallel (loadInstrument name)) instrumentNames
 
 foreign import decodeAudioBufferImpl
   :: forall eff. Uint8Array  -> EffFnAff (au :: AUDIO | eff) AudioBuffer
@@ -77,6 +106,7 @@ decodeAudioBuffer =
 foreign import playFontNote
   :: forall eff. FontNote -> Eff (au :: AUDIO | eff) Number
 
+-- | play a single note through its soundfont buffer
 playNote :: forall eff. Instrument -> MidiNote -> Eff (au :: AUDIO | eff) Number
 playNote instrument note =
   case lookup note.id instrument of
@@ -116,22 +146,12 @@ logLoadResource instrument =
         ejson = midiJsToNoteMap instrument res.response
       liftEff $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
 
-loadInstrument :: ∀ e.
-        String
-        -> Aff
-             ( ajax :: AJAX
-             , au :: AUDIO
-             | e
-             )
-             Instrument
-loadInstrument instrumentName =
-  let
-    url = gleitzUrl instrumentName MusyngKite OGG
-  in
-    do
-      res <- affjax $ defaultRequest { url = url, method = Left GET }
-      let
-        ejson = midiJsToNoteMap instrumentName res.response
-        noteMap = either (\_ -> empty) id ejson
-      instrument <- traverse decodeAudioBuffer noteMap
-      pure instrument
+-- | turn a MIDI note (and audio buffer) into a font note (suitable for JS)
+fontNote :: AudioBuffer -> MidiNote -> FontNote
+fontNote buffer n =
+  {
+    buffer : buffer
+  , timeOffset : n.timeOffset
+  , duration : n.duration
+  , gain : n.gain
+  }
