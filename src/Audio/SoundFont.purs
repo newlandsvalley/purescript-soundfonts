@@ -22,7 +22,7 @@ import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Control.Parallel (parallel, sequential)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
-import Data.Array (head, reverse)
+import Data.Array (head, index, reverse)
 import Data.Map (Map, lookup, empty)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Tuple (Tuple(..))
@@ -125,19 +125,25 @@ foreign import playFontNote
   :: forall eff. FontNote -> Eff (au :: AUDIO | eff) Number
 
 -- | play a single note through its soundfont buffer
-playNote :: forall eff. Instrument -> MidiNote -> Eff (au :: AUDIO | eff) Number
-playNote instrument note =
-  case lookup note.id instrument of
-    Just b -> playFontNote $ fontNote b note
-    _ -> pure 0.0
+playNote :: forall eff. Array Instrument -> MidiNote -> Eff (au :: AUDIO | eff) Number
+playNote instruments note =
+  let
+    maybeInstrument = index instruments note.channel
+  in
+    case maybeInstrument of
+      Just instrument ->
+        case lookup note.id instrument of
+          Just b -> playFontNote $ fontNote b note
+          _ -> pure 0.0
+      _ -> pure 0.0
 
 -- | play a bunch of notes asynchronously
 -- | return the duration of the phrase
 -- | (i.e. the time offset plus duration of the last note in the phrase)
-playNotes :: forall eff. Instrument -> Array MidiNote -> Eff (au :: AUDIO | eff) Number
-playNotes instrument notes =
+playNotes :: forall eff. Array Instrument -> Array MidiNote -> Eff (au :: AUDIO | eff) Number
+playNotes instruments notes =
   let
-    pns = map (playNote instrument) notes
+    pns = map (playNote instruments) notes
   in
     map lastDuration (sequenceDefault pns)
 
