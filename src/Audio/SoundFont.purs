@@ -2,6 +2,9 @@ module Audio.SoundFont (
     AUDIO
   , AudioBuffer
   , MidiNote
+  , canPlayOgg
+  , isWebAudioEnabled
+  , setNoteRing
   , logLoadResource
   , loadInstrument
   , loadInstruments
@@ -16,7 +19,7 @@ import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Aff, Fiber, launchAff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
-import Control.Parallel (parallel, sequential, parTraverse_)
+import Control.Parallel (parallel, sequential)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
 import Data.Array (head, reverse)
@@ -27,7 +30,7 @@ import Data.Traversable (traverse, sequenceDefault)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Audio.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
-import Audio.SoundFont.Decoder (NoteMap, midiJsToNoteMap, debugNoteIds)
+import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 
 -- | The SoundFont API which we will expose
 
@@ -64,6 +67,17 @@ type FontNote =
 -- | can the browser play ogg format ?
 foreign import canPlayOgg
   :: forall eff. (Eff (au :: AUDIO | eff) Boolean)
+
+-- | is the browser web-audio enabled ?
+foreign import isWebAudioEnabled
+  :: forall eff. (Eff (au :: AUDIO | eff) Boolean)
+
+-- | setting for how long the note 'rings' after it's alloted time
+-- | in order to support features such as a more legato feel
+-- | This should be a number between 0 (no ring) and 1 (double the original
+-- | note duration)
+foreign import setNoteRing
+  :: forall eff. Number -> Eff (au :: AUDIO | eff) Unit
 
 -- | load a single instrument SoundFont
 loadInstrument :: ∀ e.

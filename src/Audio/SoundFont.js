@@ -35,7 +35,10 @@ var sf = function() {
           return false;
         }
       },
-      /* Get the current time from the audio context */
+      /* Get the current time from the audio context
+        I don;t think I'll expose this any longer
+        it's not needed
+      */
       getCurrentTime : function() {
          sf.establishAudioContext();
          if (sf.context) {
@@ -46,10 +49,9 @@ var sf = function() {
          }
       },
       /* set the amount that the note 'rings' i.e. exists after its alloted time */
-      setNoteRingImpl : function(ring) {
+      setNoteRing : function(ring) {
         return function () {
           console.log('note ring: ', ring);
-        var buffer = inst.buffers[midiNote.id];
           sf.noteRing = ring;
         }
       },
@@ -58,15 +60,15 @@ var sf = function() {
           var uint8Array = new Uint8Array(psuint8array);
           if (sf.context) {
              sf.context.decodeAudioData(uint8Array.buffer, function (buff) {
-                console.log('buffer decoded OK ');
+                // console.log('buffer decoded OK ');
                 onSuccess(buff)
              }, function (e) {
-                console.log('buffer decode failed ');
+                // console.log('buffer decode failed ');
                 onError('DecodeAudioData error', e);
              })
           }
           else {
-            console.log('no audio context ');
+            // console.log('no audio context ');
             onError('No audio context');
           }
       },
@@ -112,7 +114,6 @@ var sf = function() {
 
 exports.isWebAudioEnabled = sf.isWebAudioEnabled;
 exports.canPlayOgg = sf.canPlayOgg;
-exports.getCurrentTime = sf.getCurrentTime;
-exports.setNoteRingImpl = sf.setNoteRingImpl;
+exports.setNoteRing = sf.setNoteRing;
 exports.decodeAudioBufferImpl = sf.decodeAudioBufferImpl;
 exports.playFontNote = sf.playFontNote;
