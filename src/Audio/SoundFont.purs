@@ -1,7 +1,9 @@
 module Audio.SoundFont (
     AUDIO
   , AudioBuffer
+  , Instrument
   , MidiNote
+  , SoundFont
   , canPlayOgg
   , isWebAudioEnabled
   , setNoteRing
@@ -40,12 +42,12 @@ foreign import data AUDIO :: Effect
 -- | the Audio Buffer for a single note
 foreign import data AudioBuffer :: Type
 
--- | the instrument fonts
+-- | the instrument soundfont
 -- | a mapping between MIDI pitch and the note's AudioBuffer
-type Instrument = Map Int AudioBuffer
+type SoundFont = Map Int AudioBuffer
 
--- | the mapping of an instrument name to its SoundFont
-type InstrumentMap = Tuple InstrumentName Instrument
+-- | an instrument name attached to its SoundFont
+type Instrument = Tuple InstrumentName SoundFont
 
 -- | A Midi Note
 type MidiNote =
@@ -87,7 +89,7 @@ loadInstrument :: ∀ e.
      , au :: AUDIO
      | e
      )
-     InstrumentMap
+     Instrument
 loadInstrument instrumentName = do
   recordingFormat <- liftEff prefferedRecordingFormat
   let
@@ -96,8 +98,8 @@ loadInstrument instrumentName = do
   let
     ejson = midiJsToNoteMap instrumentName res.response
     noteMap = either (\_ -> empty) id ejson
-  instrument <- traverse decodeAudioBuffer noteMap
-  pure (Tuple instrumentName instrument)
+  font <- traverse decodeAudioBuffer noteMap
+  pure (Tuple instrumentName font)
 
 -- | load a bunch of instrument SoundFonts (in parallel)
 loadInstruments :: ∀ e.
@@ -107,7 +109,7 @@ loadInstruments :: ∀ e.
      , au :: AUDIO
      | e
      )
-     (Array InstrumentMap)
+     (Array Instrument)
 loadInstruments instrumentNames =
   sequential $ traverse (\name -> parallel (loadInstrument name)) instrumentNames
 
@@ -131,8 +133,8 @@ playNote instruments note =
     maybeInstrument = index instruments note.channel
   in
     case maybeInstrument of
-      Just instrument ->
-        case lookup note.id instrument of
+      Just (Tuple name soundfont) ->
+        case lookup note.id soundfont of
           Just b -> playFontNote $ fontNote b note
           _ -> pure 0.0
       _ -> pure 0.0

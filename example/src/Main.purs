@@ -1,10 +1,9 @@
 module Main where
 
-import Prelude (bind, map, ($), (*))
+import Prelude (bind, ($), (*))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Fiber, launchAff, delay)
-import Data.Tuple (Tuple(..))
 import Data.Array (singleton)
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
@@ -58,9 +57,7 @@ main :: ∀ eff.
     )
 main = launchAff $ do
   -- instrument <- loadInstrument "acoustic_grand_piano"
-  loadedInstruments <- loadInstruments ["marimba", "acoustic_grand_piano", "tango_accordion"]
-  let
-    instruments = map (\(Tuple name instrument) -> instrument) loadedInstruments
+  instruments <- loadInstruments ["marimba", "acoustic_grand_piano", "tango_accordion"]
 
   da <- liftEff $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
@@ -86,7 +83,7 @@ main :: ∀ eff.
     )
 main = launchAff $ do
   -- instrument <- loadInstrument "acoustic_grand_piano"
-  (Tuple name instrument) <- loadInstrument "marimba"
+  instrument <- loadInstrument "marimba"
   let
     instruments = singleton instrument
   da <- liftEff $ playNote instruments noteSampleA
