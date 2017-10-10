@@ -9,7 +9,9 @@ This is an experimental complete re-write of the soundfont library.  Although st
 *  When playing a note that uses an AudioBuffer.
 *  And in non-essential API functions canPlayOgg and isWebAudioEnabled.
 
-All that has been provided so far is a proof of concept.  A SoundFont can be loaded from Benjamin Gleitzman's package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts), decoded and stored.  A succession of notes can then be played through the SoundFont buffers.
+A SoundFont can be loaded from Benjamin Gleitzman's package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts), decoded and stored.  A succession of notes can then be played through the SoundFont buffers.
+
+This is intended to be functionally equivalent to purescript-polymorphic soundfonts.  The major difference from a user perspective is that the soundfonts are no longer implicit and have to be stored by the user and passed to the __playNote__ functions.  The rarely used function to get the current time from the Audio Context has been dropped. The function to load the piano soundfont from a local resource has not yet been implemented.
 
 ## Build
 
