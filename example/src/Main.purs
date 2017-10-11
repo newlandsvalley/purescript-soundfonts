@@ -5,9 +5,16 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Fiber, launchAff, delay)
 import Data.Array (singleton)
+import Data.Maybe (Maybe(..))
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
-import Audio.SoundFont (AUDIO, MidiNote, logLoadResource, loadInstrument, loadInstruments, playNote, playNotes)
+import Audio.SoundFont (AUDIO, MidiNote
+  , loadRemoteSoundFonts
+  , loadPianoSoundFont
+  , loadInstrument
+  , loadInstruments
+  , playNote
+  , playNotes)
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =
@@ -32,16 +39,7 @@ notesSample channel =
  , note channel 71 3.0 1.5 1.0
  ]
 
-{- just for debug
-main :: ∀ e.
-  Eff (ajax :: AJAX, console :: CONSOLE | e) (Fiber (ajax :: AJAX, console :: CONSOLE | e) Unit)
-main = do
-  _ <- logLoadResource "acoustic_grand_piano"
-  logLoadResource "marimba"
--}
-
-
-
+-- | load remote fonts example
 main :: ∀ eff.
   Eff
     ( ajax :: AJAX
@@ -56,8 +54,8 @@ main :: ∀ eff.
        Number
     )
 main = launchAff $ do
-  -- instrument <- loadInstrument "acoustic_grand_piano"
-  instruments <- loadInstruments ["marimba", "acoustic_grand_piano", "tango_accordion"]
+  -- instruments <- loadInstruments Nothing ["marimba", "acoustic_grand_piano", "tango_accordion"]
+  instruments <- loadRemoteSoundFonts ["marimba", "acoustic_grand_piano", "tango_accordion"]
 
   da <- liftEff $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
@@ -67,7 +65,10 @@ main = launchAff $ do
   _ <- delay (Milliseconds $ 1000.0 * de)
   liftEff $ playNotes instruments (notesSample 2)
 
-{-}
+
+
+{-
+-- | load local piano font example
 main :: ∀ eff.
   Eff
     ( ajax :: AJAX
@@ -82,8 +83,8 @@ main :: ∀ eff.
        Number
     )
 main = launchAff $ do
-  -- instrument <- loadInstrument "acoustic_grand_piano"
-  instrument <- loadInstrument "marimba"
+  -- instrument <- loadInstrument (Just "soundfonts") "acoustic_grand_piano"
+  instrument <- loadPianoSoundFont "soundfonts"
   let
     instruments = singleton instrument
   da <- liftEff $ playNote instruments noteSampleA
@@ -93,5 +94,4 @@ main = launchAff $ do
   de <- liftEff $ playNote instruments noteSampleE
   _ <- delay (Milliseconds $ 1000.0 * de)
   liftEff $ playNotes instruments (notesSample 0)
-  -- pure font
 -}

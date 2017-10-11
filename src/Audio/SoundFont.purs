@@ -10,6 +10,8 @@ module Audio.SoundFont (
   , logLoadResource
   , loadInstrument
   , loadInstruments
+  , loadRemoteSoundFonts
+  , loadPianoSoundFont
   , playNote
   , playNotes
   ) where
@@ -81,19 +83,52 @@ foreign import isWebAudioEnabled
 foreign import setNoteRing
   :: forall eff. Number -> Eff (au :: AUDIO | eff) Unit
 
--- | load a single instrument SoundFont
-loadInstrument :: ∀ e.
-  InstrumentName
+-- | load a bunch of soundfonts from the Gleitzmann server
+loadRemoteSoundFonts :: ∀ e.
+  Array InstrumentName
+  -> Aff
+     ( ajax :: AJAX
+     , au :: AUDIO
+     | e
+     )
+     (Array Instrument)
+loadRemoteSoundFonts =
+  loadInstruments Nothing
+
+-- | load the piano soundfont from a relative directory on the local server
+loadPianoSoundFont :: ∀ e.
+  String
   -> Aff
      ( ajax :: AJAX
      , au :: AUDIO
      | e
      )
      Instrument
-loadInstrument instrumentName = do
+loadPianoSoundFont localDir =
+  loadInstrument (Just localDir) "acoustic_grand_piano"
+
+-- | load a single instrument SoundFont
+-- | The options are to load the soundfont from:
+-- |   Benjamin Gleitzman's server (default)
+-- |   A directory from the local server if this is supplied
+loadInstrument :: ∀ e.
+  Maybe String
+  -> InstrumentName
+  -> Aff
+     ( ajax :: AJAX
+     , au :: AUDIO
+     | e
+     )
+     Instrument
+loadInstrument maybeLocalDir instrumentName = do
   recordingFormat <- liftEff prefferedRecordingFormat
   let
-    url = gleitzUrl instrumentName MusyngKite recordingFormat
+    url =
+      case maybeLocalDir of
+        Just localDir ->
+          localUrl instrumentName localDir recordingFormat
+        _ ->
+          gleitzUrl instrumentName MusyngKite recordingFormat
   res <- affjax $ defaultRequest { url = url, method = Left GET }
   let
     ejson = midiJsToNoteMap instrumentName res.response
@@ -102,16 +137,19 @@ loadInstrument instrumentName = do
   pure (Tuple instrumentName font)
 
 -- | load a bunch of instrument SoundFonts (in parallel)
+-- | again with options to load either locally or remotely
+-- | from Benjamin Gleitzman's server
 loadInstruments :: ∀ e.
-  Array InstrumentName
+  Maybe String
+  -> Array InstrumentName
   -> Aff
      ( ajax :: AJAX
      , au :: AUDIO
      | e
      )
      (Array Instrument)
-loadInstruments instrumentNames =
-  sequential $ traverse (\name -> parallel (loadInstrument name)) instrumentNames
+loadInstruments maybeLocalDir instrumentNames =
+  sequential $ traverse (\name -> parallel (loadInstrument maybeLocalDir name)) instrumentNames
 
 foreign import decodeAudioBufferImpl
   :: forall eff. Uint8Array  -> EffFnAff (au :: AUDIO | eff) AudioBuffer
@@ -186,3 +224,9 @@ fontNote buffer n =
   , duration : n.duration
   , gain : n.gain
   }
+
+-- | build a local URL where the instrument font is contained
+-- | in a resource container described by localDir
+localUrl :: InstrumentName -> String -> RecordingFormat -> String
+localUrl instrument localDir format =
+  localDir <> "/" <> instrument <> "-" <> (show format) <> ".js"

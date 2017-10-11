@@ -9,7 +9,7 @@ module Audio.SoundFont.Gleitz (
   ) where
 
 
-import Prelude ((<>), ($), (+), (*), map, negate, show)
+import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.String (toUpper)
@@ -27,7 +27,15 @@ import Partial.Unsafe (unsafePartial)
 
 data RecordingFormat = MP3 | OGG
 
+instance showRecordingFormat :: Show RecordingFormat where
+  show MP3 = "mp3"
+  show OGG = "ogg"
+
 data SoundFontType = Fluid3 | MusyngKite
+
+instance showSoundFontType :: Show SoundFontType where
+  show Fluid3 = "FluidR3_GM"
+  show MusyngKite = "MusyngKite"
 
 type InstrumentName = String
 
@@ -50,16 +58,7 @@ gleitzBaseUrl = "https://gleitz.github.io/midi-js-soundfonts/"
 
 gleitzUrl :: InstrumentName -> SoundFontType -> RecordingFormat -> String
 gleitzUrl instrument fontType format =
-  let
-    fmt = case format of
-      MP3 -> "mp3"
-      OGG -> "ogg"
-    sft = case fontType of
-      Fluid3 -> "FluidR3_GM"
-      MusyngKite -> "MusyngKite"
-  in
-    gleitzBaseUrl <> sft <> "/" <> instrument <> "-" <> fmt <> ".js"
-
+  gleitzBaseUrl <> (show fontType) <> "/" <> instrument <> "-" <> (show format) <> ".js"
 
 -- at the moment - just throw away the error
 midiPitch :: String -> Int
