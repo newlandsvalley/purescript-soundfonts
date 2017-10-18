@@ -33,7 +33,8 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse, sequenceDefault)
 import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
 import Data.ArrayBuffer.Types (Uint8Array)
-import Audio.SoundFont.Gleitz (InstrumentName, RecordingFormat(..), SoundFontType(..), gleitzUrl)
+import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
+import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 
 -- | The SoundFont API which we will expose
@@ -105,7 +106,7 @@ loadPianoSoundFont :: ∀ e.
      )
      Instrument
 loadPianoSoundFont localDir =
-  loadInstrument (Just localDir) "acoustic_grand_piano"
+  loadInstrument (Just localDir) AcousticGrandPiano
 
 -- | load a single instrument SoundFont
 -- | The options are to load the soundfont from:
@@ -229,4 +230,4 @@ fontNote buffer n =
 -- | in a resource container described by localDir
 localUrl :: InstrumentName -> String -> RecordingFormat -> String
 localUrl instrument localDir format =
-  localDir <> "/" <> instrument <> "-" <> (show format) <> ".js"
+  localDir <> "/" <> (gleitzmanName instrument) <> "-" <> (show format) <> ".js"

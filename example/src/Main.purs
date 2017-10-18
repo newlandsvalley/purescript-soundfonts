@@ -4,8 +4,6 @@ import Prelude (bind, ($), (*))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Fiber, launchAff, delay)
-import Data.Array (singleton)
-import Data.Maybe (Maybe(..))
 import Network.HTTP.Affjax (AJAX)
 import Data.Time.Duration (Milliseconds(..))
 import Audio.SoundFont (AUDIO, MidiNote
@@ -15,6 +13,7 @@ import Audio.SoundFont (AUDIO, MidiNote
   , loadInstruments
   , playNote
   , playNotes)
+import Data.Midi.Instrument (InstrumentName(..))
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =
@@ -40,6 +39,7 @@ notesSample channel =
  ]
 
 -- | load remote fonts example
+
 main :: ∀ eff.
   Eff
     ( ajax :: AJAX
@@ -54,8 +54,8 @@ main :: ∀ eff.
        Number
     )
 main = launchAff $ do
-  -- instruments <- loadInstruments Nothing ["marimba", "acoustic_grand_piano", "tango_accordion"]
-  instruments <- loadRemoteSoundFonts ["marimba", "acoustic_grand_piano", "tango_accordion"]
+  instruments <- loadRemoteSoundFonts [Marimba, AcousticGrandPiano, TangoAccordion]
+  -- _ <- liftEff' $ logShow $ length instruments
 
   da <- liftEff $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)

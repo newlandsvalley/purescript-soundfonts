@@ -1,7 +1,6 @@
 module Audio.SoundFont.Gleitz (
     RecordingFormat(..)
   , SoundFontType(..)
-  , InstrumentName
   , gleitzUrl
   , gleitzNoteName
   , midiPitch
@@ -19,6 +18,7 @@ import Data.Int (fromString)
 import Data.Array (index)
 import Data.Tuple (Tuple(..))
 import Data.StrMap (StrMap, fromFoldable, lookup)
+import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Partial.Unsafe (unsafePartial)
 
 -- | Provide descriptions of MIDI.js from https://github.com/gleitz/midi-js-soundfonts
@@ -36,8 +36,6 @@ data SoundFontType = Fluid3 | MusyngKite
 instance showSoundFontType :: Show SoundFontType where
   show Fluid3 = "FluidR3_GM"
   show MusyngKite = "MusyngKite"
-
-type InstrumentName = String
 
 type Pitch = String
 
@@ -58,7 +56,7 @@ gleitzBaseUrl = "https://gleitz.github.io/midi-js-soundfonts/"
 
 gleitzUrl :: InstrumentName -> SoundFontType -> RecordingFormat -> String
 gleitzUrl instrument fontType format =
-  gleitzBaseUrl <> (show fontType) <> "/" <> instrument <> "-" <> (show format) <> ".js"
+  gleitzBaseUrl <> (show fontType) <> "/" <> (gleitzmanName instrument) <> "-" <> (show format) <> ".js"
 
 -- at the moment - just throw away the error
 midiPitch :: String -> Int

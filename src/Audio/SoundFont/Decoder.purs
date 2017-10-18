@@ -8,7 +8,8 @@ import Prelude ((<>), ($), (+), map, show)
 import Data.Either (Either(..))
 import Data.Maybe(Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
-import Audio.SoundFont.Gleitz (InstrumentName, debugNoteName, midiPitch)
+import Data.Midi.Instrument (InstrumentName, gleitzmanName)
+import Audio.SoundFont.Gleitz (debugNoteName, midiPitch)
 import Data.Argonaut.Core (Json, JObject, foldJsonObject, foldJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))
@@ -52,8 +53,9 @@ rebaseNoteMap nm =
 -- | and then the almost-Json for the requested instrument -
 -- | unfortunately it leaves a trailing comma before the final brace.
 midiJsToNoteMap :: InstrumentName -> String -> Either Error NoteMap
-midiJsToNoteMap instrument mjs =
+midiJsToNoteMap instrumentName mjs =
   let
+    instrument = gleitzmanName instrumentName
     patternString = "MIDI.Soundfont." <> instrument <> " = "
     pattern = Pattern patternString
     posStart = indexOf pattern mjs

@@ -36,7 +36,7 @@ var sf = function() {
         }
       },
       /* Get the current time from the audio context
-        I don;t think I'll expose this any longer
+        I don't think I'll expose this any longer
         it's not needed
       */
       getCurrentTime : function() {
@@ -51,7 +51,7 @@ var sf = function() {
       /* set the amount that the note 'rings' i.e. exists after its alloted time */
       setNoteRing : function(ring) {
         return function () {
-          console.log('note ring: ', ring);
+          // console.log('note ring: ', ring);
           sf.noteRing = ring;
         }
       },
