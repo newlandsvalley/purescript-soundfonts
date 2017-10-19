@@ -2,6 +2,7 @@ module Audio.SoundFont (
     AUDIO
   , AudioBuffer
   , Instrument
+  , InstrumentChannels
   , MidiNote
   , SoundFont
   , canPlayOgg
@@ -14,28 +15,30 @@ module Audio.SoundFont (
   , loadPianoSoundFont
   , playNote
   , playNotes
+  , instrumentChannels
   ) where
 
-import Prelude (Unit, bind, id, map, pure, show, ($), (<>), (<<<))
+import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
+import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
 import Control.Monad (liftM1)
-import Control.Monad.Eff (kind Effect, Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
-import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Aff (Aff, Fiber, launchAff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
+import Control.Monad.Eff (kind Effect, Eff)
+import Control.Monad.Eff.Class (liftEff)
+import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Parallel (parallel, sequential)
+import Data.Array (head, index, mapWithIndex, reverse)
+import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
-import Data.Array (head, index, reverse)
-import Data.Map (Map, lookup, empty)
+import Data.Map (Map, lookup, empty, fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Tuple (Tuple(..))
-import Data.Traversable (traverse, sequenceDefault)
-import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
-import Data.ArrayBuffer.Types (Uint8Array)
+import Data.Bifunctor (rmap)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
-import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
-import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
+import Data.Traversable (traverse, sequenceDefault)
+import Data.Tuple (Tuple(..))
+import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
+import Prelude (Unit, bind, id, map, pure, show, ($), (<>), (<<<))
 
 -- | The SoundFont API which we will expose
 
@@ -51,6 +54,9 @@ type SoundFont = Map Int AudioBuffer
 
 -- | an instrument name attached to its SoundFont
 type Instrument = Tuple InstrumentName SoundFont
+
+-- | the mapping of instrument names to MIDI channels
+type InstrumentChannels = Map InstrumentName Int
 
 -- | A Midi Note
 type MidiNote =
@@ -187,6 +193,15 @@ playNotes instruments notes =
     pns = map (playNote instruments) notes
   in
     map lastDuration (sequenceDefault pns)
+
+-- | create a map of instrument name to channel from an Instrument Array
+instrumentChannels :: Array Instrument -> InstrumentChannels
+instrumentChannels is =
+  let
+    f :: Int -> Instrument -> Tuple InstrumentName Int
+    f i = rmap (\_ -> i)
+  in
+    fromFoldable $ mapWithIndex f is
 
 -- | return the overall duration of the last note played from a sequence of notes
 lastDuration :: Array Number -> Number
