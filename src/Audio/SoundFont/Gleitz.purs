@@ -8,7 +8,7 @@ module Audio.SoundFont.Gleitz (
   ) where
 
 
-import Prelude (class Show, (<>), ($), (+), (-), (*), map, negate, show)
+import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.String (toUpper)
@@ -95,7 +95,7 @@ midiPitch1 s =
 -- | The MIDI standard does not standardise on a particular middle C
 toMidiPitch :: Int -> Int -> Int -> Int
 toMidiPitch octave pitch accidental =
-  (12 * octave) + pitch + accidental - 12
+  (12 * octave) + pitch + accidental + 12
 
 lookupPitch :: Pitch -> Maybe Int
 lookupPitch p =
