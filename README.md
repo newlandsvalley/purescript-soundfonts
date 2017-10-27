@@ -9,13 +9,15 @@ This is an experimental complete re-write of the soundfont library.  Although st
 
 A SoundFont can be loaded from Benjamin Gleitzman's package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts) or from a resource on the local server. It is then decoded into a dictionary of Audio Buffers (one for each note).  A succession of notes can then be played through these buffers.
 
-This is intended to be functionally equivalent to purescript-polymorphic soundfonts.  The major difference from a user perspective is that the soundfonts are no longer implicit and have to be stored by the user and passed to the __playNote__ functions.  The rarely used function to get the current time from the Audio Context has been dropped. 
+The conversion of a Gleitzman note name (e.g. Ab4) to a MIDI pitch uses middle C = C4.
+
+This is intended to be functionally equivalent to purescript-polymorphic soundfonts.  The major difference from a user perspective is that the soundfonts are no longer implicit and have to be stored by the user and passed to the __playNote__ functions.  The rarely used function to get the current time from the Audio Context has been dropped.
 
 ## Build
 
     bower install   
     pulp build
-   
+
 ## Example
 
     ./build-example.sh

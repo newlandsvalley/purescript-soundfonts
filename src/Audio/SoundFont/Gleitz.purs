@@ -8,7 +8,7 @@ module Audio.SoundFont.Gleitz (
   ) where
 
 
-import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
+import Prelude (class Show, (<>), ($), (+), (-), (*), map, negate, show)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.String (toUpper)
@@ -72,21 +72,30 @@ midiPitch1 s =
       let
         mpitch :: Maybe Int
         mpitch = case index matches 1 of       -- first match group
-          Just (Just p) -> lookup p semitones
+          Just (Just p) -> lookup p semitones  -- A-G
           _ -> Nothing
         acc :: Int
         acc = case index matches 2 of          -- second match group
-          Just (Just "b") -> (-1)
+          Just (Just "b") -> (-1)              -- # or b
+          Just (Just "#") -> 1              -- # or b
           _ -> 0
         moctave :: Maybe Int
         moctave =                              -- third match group
-          case index matches 3 of
+          case index matches 3 of              -- octave number
             Just (Just octave) -> fromString octave
             _ -> Nothing
       in
         case (Tuple mpitch moctave) of
-          (Tuple (Just p) (Just oct)) -> Just ((12 * oct) + p + acc)
+          (Tuple (Just p) (Just oct)) -> Just $ toMidiPitch oct p acc
           _ -> Nothing
+
+-- | build a MIDI pitch (middle C = C4)
+-- | building from the octave number, pitch (relative to C)
+-- | and any accidental offset (i.e. flat lowers pitch by 1, sharp raised it)
+-- | The MIDI standard does not standardise on a particular middle C
+toMidiPitch :: Int -> Int -> Int -> Int
+toMidiPitch octave pitch accidental =
+  (12 * octave) + pitch + accidental - 12
 
 lookupPitch :: Pitch -> Maybe Int
 lookupPitch p =
@@ -101,7 +110,7 @@ gleitzNoteName s =
   let
     makeRegex :: Partial => Regex.Regex
     makeRegex =
-      case Regex.regex "([A-Ga-g])(b?)([0-8])" noFlags of
+      case Regex.regex "([A-Ga-g])([b#]?)([0-8])" noFlags of
         Right r ->
           r
     regex = unsafePartial makeRegex

@@ -15,12 +15,16 @@ import Audio.SoundFont.Gleitz (midiPitch)
 gleitzSuite :: forall t. Free (TestF t) Unit
 gleitzSuite =
   suite "gleitz" do
-    test "midi pitch Bb0" do
-      Assert.equal 10 (midiPitch "Bb0")
-    test "midi pitch A3" do
-      Assert.equal 45 (midiPitch "A3")
+    test "midi pitch C4" do
+      Assert.equal 36 (midiPitch "C4")
+    test "midi pitch Bb1" do
+      Assert.equal 10 (midiPitch "Bb1")
+    test "midi pitch A#1" do
+      Assert.equal 10 (midiPitch "A#1")
+    test "midi pitch A4" do
+      Assert.equal 45 (midiPitch "A4")
     test "midi pitch C8" do
-      Assert.equal 96 (midiPitch "C8")
+      Assert.equal 84 (midiPitch "C8")
 
 main :: forall t.
         Eff
