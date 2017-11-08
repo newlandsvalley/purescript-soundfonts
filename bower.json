@@ -12,8 +12,7 @@
     "purescript-parallel": "^3.2.0",
     "purescript-argonaut-core": "^3.1.0",
     "menelaos/purescript-b64": "^0.0.3",
-    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#1.1.0",
-    "purescript-console": "^3.0.0"
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#1.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",

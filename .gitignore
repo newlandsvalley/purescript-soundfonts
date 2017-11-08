@@ -3,7 +3,10 @@
 /.pulp-cache/
 /output/
 /generated-docs/
-/dist/purescript-soundfonts.js
+/example/dist/purescript-soundfonts.js
+/example/.psc-ide-port
+/example/bower_components/
+/example/output/
 /.psc*
 /.purs*
 /.psa*
