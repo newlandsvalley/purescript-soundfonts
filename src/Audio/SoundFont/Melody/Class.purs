@@ -1,10 +1,10 @@
-module SoundFont.Melody.Class where
+module Audio.SoundFont.Melody.Class where
 
 -- | a typeclass representing those sound sources that can be played
--- | by a soundfont player 
+-- | by a soundfont player
 
-import SoundFont.Melody (Melody, PMelody(..))
-import SoundFont.Melody.Maker (toMelody) as MM
+import Audio.SoundFont.Melody (Melody, PMelody(..))
+import Audio.SoundFont.Melody.Maker (toMelody) as MM
 import Data.Midi as Midi
 
 class Playable p where

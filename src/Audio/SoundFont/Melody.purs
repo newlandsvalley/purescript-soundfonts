@@ -1,4 +1,4 @@
-module SoundFont.Melody (MidiPhrase, Melody, PMelody(..)) where
+module Audio.SoundFont.Melody (MidiPhrase, Melody, PMelody(..)) where
 
 import Audio.SoundFont (MidiNote)
 

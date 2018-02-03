@@ -1,10 +1,10 @@
-module SoundFont.Melody.Maker (toMelody) where
+module Audio.SoundFont.Melody.Maker (toMelody) where
 
 -- | Convert a MIDI Recording to a playable melody.
 
 import Control.Monad.State as ControlState
 import Data.Midi as Midi
-import SoundFont.Melody (Melody, MidiPhrase)
+import Audio.SoundFont.Melody (Melody, MidiPhrase)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Array ((:), reverse)
 import Data.List (List(..), head)
