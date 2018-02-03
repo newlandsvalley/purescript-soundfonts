@@ -8,7 +8,7 @@
   ],
   "dependencies": {
     "newlandsvalley/purescript-midi": "^1.2.0",
-    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#1.1.3",
+    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#1.1.4",
     "purescript-console": "^3.0.0"
   },
   "devDependencies": {
