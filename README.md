@@ -6,6 +6,8 @@ purescript-soundfonts
 
 This library allows you to play music directly in the browser using a variety of instruments.  These are provided, courtesy of Benjamin Gleitzman's package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts). You can either load them remotely from the Gleitzman GitHub account or else host then locally on your own server.  They load as dictionaries of AudioBuffers - one for each note on each selected instrument. Once loaded. you can play individual notes or groups of notes on your instruments of choice.
 
+Also included is conversion to a __Melody__ type which is suitable for use in a soundfont player widget.
+
 The conversion of a Gleitzman note name (e.g. Ab4) to a MIDI pitch uses middle C = C4.
 
 ### Acknowledgements

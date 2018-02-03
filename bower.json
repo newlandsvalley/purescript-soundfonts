@@ -1,18 +1,27 @@
 {
   "name": "purescript-soundfonts",
+  "description": "play music through web-audio soundfonts",
+  "keywords": [
+    "purescript"
+  ],
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "output"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/newlandsvalley/purescript-soundfonts.git"
+  },
   "dependencies": {
     "purescript-prelude": "^3.1.0",
     "purescript-affjax": "^5.0.0",
     "purescript-parallel": "^3.2.0",
     "purescript-argonaut-core": "^3.1.0",
     "menelaos/purescript-b64": "^0.0.3",
-    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#1.1.0"
+    "newlandsvalley/purescript-midi": "^1.2.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
