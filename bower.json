@@ -20,7 +20,7 @@
     "purescript-affjax": "^5.0.0",
     "purescript-parallel": "^3.2.0",
     "purescript-argonaut-core": "^3.1.0",
-    "purescript-b64": "^0.0.3",
+    "purescript-b64": "^0.0.4",
     "purescript-midi": "^1.2.0"
   },
   "devDependencies": {
