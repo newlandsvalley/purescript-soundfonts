@@ -18,9 +18,12 @@ The design in very heavily influenced by danigb's JavaScript soundfont project: 
 *  When playing a note that uses an AudioBuffer.
 *  In functions canPlayOgg and isWebAudioEnabled.
 
-## Build
+## Installation
 
-    bower install   
-    pulp build
+    bower install purescript-soundfonts
+    
+## Module documentation
+
+Module documentation is [published on Pursuit](http://pursuit.purescript.org/packages/purescript-soundfonts).    
 
 
