@@ -1,8 +1,16 @@
 # Changelog
 
-### Version 1.1.5 (2018-02-03)
+### Version 2.0.0 (2018-02-10)
 
-* Add Melody.
+#### breaking change
+
+* Alter the Playable typeclass definition
+
+### Version 1.2.0 (2018-02-03)
+
+The First release on Pursuit
+
++ Add Melody.
 * Use latest purescript-midi
 
 ### Version 1.1.3 (2017-10-27)

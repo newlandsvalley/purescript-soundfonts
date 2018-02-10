@@ -4,6 +4,7 @@ dist: trusty
 node_js: 6
 install:
   - npm install -g purescript@0.11.6 pulp@next bower
+  - npm install text-encoding
 script:
   - bower install
   - pulp test
