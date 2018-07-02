@@ -18,13 +18,12 @@ import Foreign.Object (Object)
 import Foreign.Object (keys, toUnfoldable) as SM
 import Data.Map (Map, fromFoldable)
 import Data.Map.Internal (keys)
--- import Data.Set (toUnfoldable) as Set
 import Data.Traversable (sequenceDefault)
 
 import Data.Foldable (intercalate)
 -- import Data.Binary.Base64 (decode) as B64
 import Data.Base64 (Base64(..), decodeBase64) as B64
-import Data.ArrayBuffer.Types (Uint8Array)
+import Data.ArrayBuffer.Types (ArrayBuffer, Uint8Array)
 import Data.Bifunctor (lmap)
 import Effect.Exception (Error, error)
 
@@ -125,11 +124,12 @@ decodeB64 s =
       Just p ->
         let
           text = drop (p + 1) s
-          mb64 = B64.decodeBase64 (B64.Base64 text)
+          mbuffer :: Maybe ArrayBuffer
+          mbuffer = B64.decodeBase64 (B64.Base64 text)
         in
-          case mb64 of
-            Just b64 ->
-              Right $ (asUint8Array <<< whole) b64
+          case mbuffer of
+            Just buffer ->
+              Right $ (asUint8Array <<< whole) buffer
             _ ->
               Left $ error "unable to decode Base64"
       _ -> Left $ error "invalid note definition in Json"

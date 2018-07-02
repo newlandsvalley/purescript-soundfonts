@@ -7,15 +7,12 @@
     "output"
   ],
   "dependencies": {
-    "newlandsvalley/purescript-midi": "^1.2.0",
-    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#1.1.5",
-    "purescript-console": "^3.0.0"
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#compiler/0.12",
+    "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#compiler/0.12",
+    "purescript-console": "^4.1.0"
   },
   "devDependencies": {
-    "purescript-psci-support": "^3.0.0",
-    "purescript-console": "^3.0.0"
-  },
-  "resolutions": {
-    "purescript-arraybuffer-types": "^2.0.0"
+    "purescript-psci-support": "^4.0.0",
+    "purescript-console": "^4.1.0"
   }
 }

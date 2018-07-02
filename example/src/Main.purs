@@ -1,12 +1,11 @@
 module Main where
 
 import Prelude (bind, ($), (*))
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Aff (Fiber, launchAff, delay)
-import Network.HTTP.Affjax (AJAX)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Aff (Fiber, launchAff, delay)
 import Data.Time.Duration (Milliseconds(..))
-import Audio.SoundFont (AUDIO, MidiNote
+import Audio.SoundFont (MidiNote
   , loadRemoteSoundFonts
   , loadPianoSoundFont
   , loadInstrument
@@ -40,30 +39,17 @@ notesSample channel =
 
 -- | load remote fonts example
 
-main :: ∀ eff.
-  Eff
-    ( ajax :: AJAX
-    , au :: AUDIO
-    | eff
-    )
-    (Fiber
-       ( ajax :: AJAX
-       , au :: AUDIO
-       | eff
-       )
-       Number
-    )
+main :: Effect (Fiber Number)
 main = launchAff $ do
   instruments <- loadRemoteSoundFonts [Marimba, AcousticGrandPiano, TangoAccordion]
-  -- _ <- liftEff' $ logShow $ length instruments
 
-  da <- liftEff $ playNote instruments noteSampleA
+  da <- liftEffect $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
-  db <- liftEff $ playNote instruments noteSampleC
+  db <- liftEffect $ playNote instruments noteSampleC
   _ <- delay (Milliseconds $ 1000.0 * db)
-  de <- liftEff $ playNote instruments noteSampleE
+  de <- liftEffect $ playNote instruments noteSampleE
   _ <- delay (Milliseconds $ 1000.0 * de)
-  liftEff $ playNotes instruments (notesSample 2)
+  liftEffect $ playNotes instruments (notesSample 2)
 
 
 
