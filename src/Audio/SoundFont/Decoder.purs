@@ -4,24 +4,32 @@ module Audio.SoundFont.Decoder (
   , debugNoteNames
   , debugNoteIds) where
 
-import Prelude ((<>), ($), (+), map, show)
+import Prelude ((<>), ($), (+), (<<<), map, show)
 import Data.Either (Either(..))
 import Data.Maybe(Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Audio.SoundFont.Gleitz (debugNoteName, midiPitch)
-import Data.Argonaut.Core (Json, JObject, foldJsonObject, foldJsonString)
+import Data.Argonaut.Core (Json, caseJsonObject, caseJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))
-import Data.StrMap (StrMap, keys, toUnfoldable) as SM
-import Data.Map (Map, fromFoldable, keys)
+-- import Data.StrMap (StrMap, keys, toUnfoldable) as SM
+import Foreign.Object (Object)
+import Foreign.Object (keys, toUnfoldable) as SM
+import Data.Map (Map, fromFoldable)
+import Data.Map.Internal (keys)
+-- import Data.Set (toUnfoldable) as Set
 import Data.Traversable (sequenceDefault)
+
 import Data.Foldable (intercalate)
-import Data.Binary.Base64 (decode) as B64
+-- import Data.Binary.Base64 (decode) as B64
+import Data.Base64 (Base64(..), decodeBase64) as B64
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Bifunctor (lmap)
-import Control.Monad.Eff.Exception (Error, error)
+import Effect.Exception (Error, error)
 
+import Data.ArrayBuffer.DataView (whole)
+import Data.ArrayBuffer.Typed (asUint8Array)
 
 -- | This module transforms the MIDI.js from https://github.com/gleitz/midi-js-soundfonts
 -- | for a diven instrument, extracts the Json and parses it and also decodes the
@@ -31,7 +39,7 @@ import Control.Monad.Eff.Exception (Error, error)
 -- | via a Web-Audio Audio Context.
 
 -- | Argonaut-facing Map
-type NoteMap0 = SM.StrMap Uint8Array
+type NoteMap0 = Object Uint8Array
 
 -- | the final note map indexed by the MIDI pitch number
 type NoteMap = Map Int Uint8Array
@@ -75,20 +83,22 @@ midiJsToNoteMap instrumentName mjs =
 -- | the top level should just be a simple Json Object, with an k-v entry for each note
 decodeJson :: Json -> Either Error NoteMap
 decodeJson =
-  foldJsonObject (Left $ error "invalid Json") decodeJObject
+  -- foldJsonObject (Left $ error "invalid Json") decodeJObject
+  caseJsonObject (Left $ error "invalid Json object") (\jobj -> decodeJObject jobj)
 
 -- | and each object should just hold a string representing the
 -- | base64 endcoding of the note
-decodeJObject :: JObject -> Either Error NoteMap
+decodeJObject :: Object Json -> Either Error NoteMap
 decodeJObject jo =
   map rebaseNoteMap $ sequenceDefault $ map decodeJString jo
 
 decodeJString :: Json -> Either Error Uint8Array
 decodeJString =
-  foldJsonString (Left $ error "invalid Json") decodeB64
+  caseJsonString (Left $ error "invalid Json string") (\s -> decodeB64 s)
 
 -- | and we need to strip off the preface of each value
 -- | to get at the raw base64 which we can then decode
+{-}
 decodeB64 :: String -> Either Error Uint8Array
 decodeB64 s =
   let
@@ -101,6 +111,28 @@ decodeB64 s =
         in
           B64.decode text
       _ -> Left $ error "invalid note definition in Json"
+-}
+
+
+-- | and we need to strip off the preface of each value
+-- | to get at the raw base64 which we can then decode
+decodeB64 :: String -> Either Error Uint8Array
+decodeB64 s =
+  let
+    pos = lastIndexOf (Pattern ",") s
+  in
+    case pos of
+      Just p ->
+        let
+          text = drop (p + 1) s
+          mb64 = B64.decodeBase64 (B64.Base64 text)
+        in
+          case mb64 of
+            Just b64 ->
+              Right $ (asUint8Array <<< whole) b64
+            _ ->
+              Left $ error "unable to decode Base64"
+      _ -> Left $ error "invalid note definition in Json"
 
 
 -- debug functions
@@ -110,4 +142,4 @@ debugNoteNames nm =
 
 debugNoteIds :: NoteMap -> String
 debugNoteIds nm =
-  intercalate "," (map show $ keys nm)
+  intercalate "," (map show (keys nm))

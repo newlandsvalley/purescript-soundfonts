@@ -16,19 +16,17 @@
     "url": "git://github.com/newlandsvalley/purescript-soundfonts.git"
   },
   "dependencies": {
-    "purescript-prelude": "^3.1.0",
-    "purescript-affjax": "^5.0.0",
-    "purescript-parallel": "^3.2.0",
-    "purescript-argonaut-core": "^3.1.0",
-    "purescript-b64": "^0.0.4",
-    "purescript-midi": "^1.2.0"
+    "purescript-prelude": "^4.0.1",
+    "purescript-affjax": "^6.0.0",
+    "purescript-parallel": "^4.0.0",
+    "purescript-argonaut-core": "^4.0.1",
+    "purescript-base64-codec": "^0.9.2",
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#compiler/0.12"
   },
   "devDependencies": {
-    "purescript-psci-support": "^3.0.0",
-    "purescript-test-unit": "^13.0.0",
-    "purescript-console": "^3.0.0"
-  },
-  "resolutions": {
-    "purescript-arraybuffer-types": "^2.0.0"
+    "purescript-psci-support": "^4.0.0",
+    "purescript-test-unit": "^14.0.0",
+    "purescript-console": "^4.1.0",
+    "purescript-node-fs-aff": "^6.0.0"
   }
 }

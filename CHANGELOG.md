@@ -1,5 +1,9 @@
 # Changelog
 
+### Version x.y.z
+
+* PureScript 12.0
+
 ### Version 2.0.0 (2018-02-10)
 
 #### breaking change

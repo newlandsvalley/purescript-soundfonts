@@ -1,25 +1,32 @@
 module Test.Main where
 
+-- | Because SoundFonts run in the browser, not in Node, we're a little restricted
+-- | in what we can test. In particular, we can check that we can read a Gleitzman
+-- | SoundFont file and decode it to a Map of array buffers, but not that we can
+-- | convert it to an Instrument (of audioBuffers) with web-audio.
+
 import Prelude
 
 import Audio.SoundFont.Gleitz (midiPitch)
+import Audio.SoundFont.Decoder (NoteMap, midiJsToNoteMap)
 import Audio.SoundFont.Melody (Melody)
-import Audio.SoundFont.Melody.Class (class Playable, MidiRecording(..), toMelody)
-import Control.Monad.Aff.AVar (AVAR)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
+import Audio.SoundFont.Melody.Class (MidiRecording(..), toMelody)
 import Control.Monad.Free (Free)
 import Data.List (List(..), (:), singleton)
 import Data.Array (concat, length)
+import Data.Either (either)
 import Data.Map (empty)
+import Data.Map.Internal (size)
 import Data.Midi as Midi
-import Test.Unit (TestF, suite, test)
+import Test.Unit (Test, TestF, suite, test, failure, success)
 import Test.Unit.Assert as Assert
-import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
+import Effect (Effect)
+import Node.FS.Aff (readTextFile)
+import Node.Encoding (Encoding(UTF8))
+import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 
-
-gleitzSuite :: forall t. Free (TestF t) Unit
+gleitzSuite :: Free TestF Unit
 gleitzSuite =
   suite "gleitz" do
     test "midi pitch C4" do
@@ -33,25 +40,32 @@ gleitzSuite =
     test "midi pitch C8" do
       Assert.equal 108 (midiPitch "C8")
 
-playableSuite :: forall t. Free (TestF t) Unit
+playableSuite :: Free TestF Unit
 playableSuite =
   suite "playable" do
     test "melody generation from midi" do
       Assert.equal 2 (length generateMelody)          -- 2 phrases
       Assert.equal 4 (length $ concat generateMelody) -- 4 notes overall
 
-main :: forall t.
-        Eff
-          ( console :: CONSOLE
-          , testOutput :: TESTOUTPUT
-          , avar :: AVAR
-          | t
-          )
-          Unit
+decodeSuite :: Free TestF Unit
+decodeSuite =
+  suite "decode" do
+    test "decode json to array buffer Map" do
+      pianoFontJson <- readTextFile UTF8 "gleitz/acoustic_grand_piano-ogg.js"
+      let
+        eNoteMap = midiJsToNoteMap AcousticGrandPiano pianoFontJson
+      either (\e -> failure $ show e) checkNoteMapSize eNoteMap
+
+checkNoteMapSize :: NoteMap -> Test
+checkNoteMapSize noteMap =
+  Assert.equal 88 (size noteMap)
+
+main :: Effect Unit
 main = runTest do
   suite "soundfonts" do
     gleitzSuite
     playableSuite
+    decodeSuite
 
 generateMelody :: Melody
 generateMelody =

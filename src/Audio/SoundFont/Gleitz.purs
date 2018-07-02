@@ -15,9 +15,11 @@ import Data.String (toUpper)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Int (fromString)
-import Data.Array (index)
+import Data.Array.NonEmpty (index)
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Tuple (Tuple(..))
-import Data.StrMap (StrMap, fromFoldable, lookup)
+-- mport Data.StrMap (StrMap, fromFoldable, lookup)
+import Foreign.Object (Object, fromFoldable, lookup)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Partial.Unsafe (unsafePartial)
 
@@ -40,7 +42,7 @@ instance showSoundFontType :: Show SoundFontType where
 type Pitch = String
 
 -- | note sequences start at C with the normal intervals between the white notes
-semitones :: StrMap Int
+semitones :: Object Int
 semitones = fromFoldable
     [ Tuple "C" 0
     , Tuple "D" 2
@@ -105,7 +107,7 @@ lookupPitch p =
 -- | Just [(Just "Bb0"),(Just "B"),(Just "b"),(Just "0")]
 -- | and C8 into
 -- | Just [(Just "C8"),(Just "C"),(Just ""),(Just "8")]
-gleitzNoteName :: String -> Maybe (Array (Maybe String))
+gleitzNoteName :: String -> Maybe (NonEmptyArray (Maybe String))
 gleitzNoteName s =
   let
     makeRegex :: Partial => Regex.Regex

@@ -1,6 +1,5 @@
 module Audio.SoundFont (
-    AUDIO
-  , AudioBuffer
+    AudioBuffer
   , Instrument
   , InstrumentChannels
   , MidiNote
@@ -21,11 +20,11 @@ module Audio.SoundFont (
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
 import Control.Monad (liftM1)
-import Control.Monad.Aff (Aff, Fiber, launchAff)
-import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
-import Control.Monad.Eff (kind Effect, Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Effect.Aff (Aff, Fiber, launchAff)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Console (log)
 import Control.Parallel (parallel, sequential)
 import Data.Array (head, index, mapWithIndex, reverse)
 import Data.ArrayBuffer.Types (Uint8Array)
@@ -37,13 +36,12 @@ import Data.Bifunctor (rmap)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
-import Network.HTTP.Affjax (AJAX, affjax, defaultRequest)
-import Prelude (Unit, bind, id, map, pure, show, ($), (<>), (<<<))
+import Network.HTTP.Affjax (affjax, defaultRequest)
+import Network.HTTP.Affjax.Response as Response
+import Prelude (Unit, bind, identity, map, pure, show, ($), (<>), (<<<))
 
 -- | The SoundFont API which we will expose
 
--- | Audio Effect
-foreign import data AUDIO :: Effect
 
 -- | the Audio Buffer for a single note
 foreign import data AudioBuffer :: Type
@@ -77,40 +75,30 @@ type FontNote =
 
 -- | can the browser play ogg format ?
 foreign import canPlayOgg
-  :: forall eff. (Eff (au :: AUDIO | eff) Boolean)
+  :: Effect Boolean
 
 -- | is the browser web-audio enabled ?
 foreign import isWebAudioEnabled
-  :: forall eff. (Eff (au :: AUDIO | eff) Boolean)
+  :: Effect Boolean
 
 -- | setting for how long the note 'rings' after it's alloted time
 -- | in order to support features such as a more legato feel
 -- | This should be a number between 0 (no ring) and 1 (double the original
 -- | note duration)
 foreign import setNoteRing
-  :: forall eff. Number -> Eff (au :: AUDIO | eff) Unit
+  :: Number -> Effect Unit
 
 -- | load a bunch of soundfonts from the Gleitzmann server
-loadRemoteSoundFonts :: ∀ e.
+loadRemoteSoundFonts ::
   Array InstrumentName
-  -> Aff
-     ( ajax :: AJAX
-     , au :: AUDIO
-     | e
-     )
-     (Array Instrument)
+  -> Aff (Array Instrument)
 loadRemoteSoundFonts =
   loadInstruments Nothing
 
 -- | load the piano soundfont from a relative directory on the local server
-loadPianoSoundFont :: ∀ e.
+loadPianoSoundFont ::
   String
-  -> Aff
-     ( ajax :: AJAX
-     , au :: AUDIO
-     | e
-     )
-     Instrument
+  -> Aff Instrument
 loadPianoSoundFont localDir =
   loadInstrument (Just localDir) AcousticGrandPiano
 
@@ -118,17 +106,13 @@ loadPianoSoundFont localDir =
 -- | The options are to load the soundfont from:
 -- |   Benjamin Gleitzman's server (default)
 -- |   A directory from the local server if this is supplied
-loadInstrument :: ∀ e.
+
+loadInstrument ::
   Maybe String
   -> InstrumentName
-  -> Aff
-     ( ajax :: AJAX
-     , au :: AUDIO
-     | e
-     )
-     Instrument
+  -> Aff Instrument
 loadInstrument maybeLocalDir instrumentName = do
-  recordingFormat <- liftEff prefferedRecordingFormat
+  recordingFormat <- liftEffect prefferedRecordingFormat
   let
     url =
       case maybeLocalDir of
@@ -136,43 +120,38 @@ loadInstrument maybeLocalDir instrumentName = do
           localUrl instrumentName localDir recordingFormat
         _ ->
           gleitzUrl instrumentName MusyngKite recordingFormat
-  res <- affjax $ defaultRequest { url = url, method = Left GET }
+  res <- affjax Response.string $ defaultRequest { url = url, method = Left GET }
   let
     ejson = midiJsToNoteMap instrumentName res.response
-    noteMap = either (\_ -> empty) id ejson
+    noteMap = either (\_ -> empty) identity ejson
   font <- traverse decodeAudioBuffer noteMap
   pure (Tuple instrumentName font)
 
 -- | load a bunch of instrument SoundFonts (in parallel)
 -- | again with options to load either locally or remotely
 -- | from Benjamin Gleitzman's server
-loadInstruments :: ∀ e.
+loadInstruments ::
   Maybe String
   -> Array InstrumentName
-  -> Aff
-     ( ajax :: AJAX
-     , au :: AUDIO
-     | e
-     )
-     (Array Instrument)
+  -> Aff (Array Instrument)
 loadInstruments maybeLocalDir instrumentNames =
   sequential $ traverse (\name -> parallel (loadInstrument maybeLocalDir name)) instrumentNames
 
 foreign import decodeAudioBufferImpl
-  :: forall eff. Uint8Array  -> EffFnAff (au :: AUDIO | eff) AudioBuffer
+  :: Uint8Array  -> EffectFnAff AudioBuffer
 
 -- | decode the AudioBuffer for a given note
-decodeAudioBuffer :: forall eff. Uint8Array -> Aff (au :: AUDIO | eff) AudioBuffer
+decodeAudioBuffer :: Uint8Array -> Aff AudioBuffer
 decodeAudioBuffer =
-  fromEffFnAff <<< decodeAudioBufferImpl
+  fromEffectFnAff <<< decodeAudioBufferImpl
 
 -- | play a note asynchronously
 -- | return the (time offset + duration) of the note
 foreign import playFontNote
-  :: forall eff. FontNote -> Eff (au :: AUDIO | eff) Number
+  :: FontNote -> Effect Number
 
 -- | play a single note through its soundfont buffer
-playNote :: forall eff. Array Instrument -> MidiNote -> Eff (au :: AUDIO | eff) Number
+playNote :: Array Instrument -> MidiNote -> Effect Number
 playNote instruments note =
   let
     maybeInstrument = index instruments note.channel
@@ -187,7 +166,7 @@ playNote instruments note =
 -- | play a bunch of notes asynchronously
 -- | return the duration of the phrase
 -- | (i.e. the time offset plus duration of the last note in the phrase)
-playNotes :: forall eff. Array Instrument -> Array MidiNote -> Eff (au :: AUDIO | eff) Number
+playNotes :: Array Instrument -> Array MidiNote -> Effect Number
 playNotes instruments notes =
   let
     pns = map (playNote instruments) notes
@@ -211,23 +190,25 @@ lastDuration fs =
   in
     fromMaybe 0.0 last
 
+
 -- | just for debug
-logLoadResource  :: ∀ e.
+logLoadResource  ::
   InstrumentName ->
-  Eff (ajax :: AJAX, console :: CONSOLE | e) (Fiber (ajax :: AJAX, console :: CONSOLE | e) Unit)
+  Effect (Fiber Unit)
 logLoadResource instrument =
   let
     url = gleitzUrl instrument MusyngKite OGG
   in
     launchAff $ do
-      res <- affjax $ defaultRequest { url = url, method = Left GET }
+      res <- affjax Response.string $ defaultRequest { url = url, method = Left GET }
 
       let
         ejson = midiJsToNoteMap instrument res.response
-      liftEff $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
+      liftEffect $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
+
 
 -- | use OGG if we can, otherwise default to MP3
-prefferedRecordingFormat :: ∀ eff. (Eff (au :: AUDIO | eff) RecordingFormat)
+prefferedRecordingFormat :: Effect  RecordingFormat
 prefferedRecordingFormat =
   liftM1 (\b -> if b then OGG else MP3) canPlayOgg
 
