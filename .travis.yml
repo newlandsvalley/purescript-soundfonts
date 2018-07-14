@@ -4,6 +4,7 @@ dist: trusty
 sudo: required
 install:
   - npm install -g bower purescript pulp
+  - npm install text-encoding
   - bower install
 script:
   - pulp test

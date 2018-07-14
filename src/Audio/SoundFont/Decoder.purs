@@ -4,7 +4,7 @@ module Audio.SoundFont.Decoder (
   , debugNoteNames
   , debugNoteIds) where
 
-import Prelude ((<>), ($), (+), (<<<), map, show)
+import Prelude ((<>), ($), (+), map, show)
 import Data.Either (Either(..))
 import Data.Maybe(Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
@@ -21,14 +21,11 @@ import Data.Map.Internal (keys)
 import Data.Traversable (sequenceDefault)
 
 import Data.Foldable (intercalate)
--- import Data.Binary.Base64 (decode) as B64
-import Data.Base64 (Base64(..), decodeBase64) as B64
-import Data.ArrayBuffer.Types (ArrayBuffer, Uint8Array)
+import Data.Binary.Base64 (decode) as B64
+import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Bifunctor (lmap)
 import Effect.Exception (Error, error)
 
-import Data.ArrayBuffer.DataView (whole)
-import Data.ArrayBuffer.Typed (asUint8Array)
 
 -- | This module transforms the MIDI.js from https://github.com/gleitz/midi-js-soundfonts
 -- | for a diven instrument, extracts the Json and parses it and also decodes the
@@ -97,7 +94,6 @@ decodeJString =
 
 -- | and we need to strip off the preface of each value
 -- | to get at the raw base64 which we can then decode
-{-}
 decodeB64 :: String -> Either Error Uint8Array
 decodeB64 s =
   let
@@ -110,11 +106,12 @@ decodeB64 s =
         in
           B64.decode text
       _ -> Left $ error "invalid note definition in Json"
--}
+
 
 
 -- | and we need to strip off the preface of each value
 -- | to get at the raw base64 which we can then decode
+{-}
 decodeB64 :: String -> Either Error Uint8Array
 decodeB64 s =
   let
@@ -133,7 +130,7 @@ decodeB64 s =
             _ ->
               Left $ error "unable to decode Base64"
       _ -> Left $ error "invalid note definition in Json"
-
+-}
 
 -- debug functions
 debugNoteNames :: NoteMap0 -> String
