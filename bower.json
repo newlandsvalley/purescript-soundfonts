@@ -20,7 +20,7 @@
     "purescript-affjax": "^6.0.0",
     "purescript-parallel": "^4.0.0",
     "purescript-argonaut-core": "^4.0.1",
-    "purescript-b64": "https://github.com/newlandsvalley/purescript-b64.git#compiler/0.12",
+    "purescript-b64": "^0.0.5",
     "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#compiler/0.12"
   },
   "devDependencies": {
