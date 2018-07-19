@@ -1,6 +1,6 @@
 # Changelog
 
-### Version x.y.z
+### Version 3.0.0
 
 * PureScript 12.0
 
@@ -31,4 +31,4 @@ The initial published release.
 
 ### Version 1.1.0  (2017-10-18)
 
-* Initial release.
+* Initial release. (PureScript 11.0)
