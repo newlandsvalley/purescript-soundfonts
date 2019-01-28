@@ -16,8 +16,9 @@ import Data.Tuple (Tuple(..))
 -- import Data.StrMap (StrMap, keys, toUnfoldable) as SM
 import Foreign.Object (Object)
 import Foreign.Object (keys, toUnfoldable) as SM
-import Data.Map (Map, fromFoldable)
-import Data.Map.Internal (keys)
+import Data.Map (Map, fromFoldable, keys)
+import Data.Set (toUnfoldable) as Set
+import Data.List (List)
 import Data.Traversable (sequenceDefault)
 
 import Data.Foldable (intercalate)
@@ -107,31 +108,6 @@ decodeB64 s =
           B64.decode text
       _ -> Left $ error "invalid note definition in Json"
 
-
-
--- | and we need to strip off the preface of each value
--- | to get at the raw base64 which we can then decode
-{-}
-decodeB64 :: String -> Either Error Uint8Array
-decodeB64 s =
-  let
-    pos = lastIndexOf (Pattern ",") s
-  in
-    case pos of
-      Just p ->
-        let
-          text = drop (p + 1) s
-          mbuffer :: Maybe ArrayBuffer
-          mbuffer = B64.decodeBase64 (B64.Base64 text)
-        in
-          case mbuffer of
-            Just buffer ->
-              Right $ (asUint8Array <<< whole) buffer
-            _ ->
-              Left $ error "unable to decode Base64"
-      _ -> Left $ error "invalid note definition in Json"
--}
-
 -- debug functions
 debugNoteNames :: NoteMap0 -> String
 debugNoteNames nm =
@@ -139,4 +115,8 @@ debugNoteNames nm =
 
 debugNoteIds :: NoteMap -> String
 debugNoteIds nm =
-  intercalate "," (map show (keys nm))
+  let
+    keyList :: List Int
+    keyList = Set.toUnfoldable (keys nm)
+  in
+    intercalate "," (map show keyList)
