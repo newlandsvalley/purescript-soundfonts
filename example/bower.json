@@ -7,7 +7,7 @@
     "output"
   ],
   "dependencies": {
-    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#2.0.0",
+    "purescript-midi": "https://github.com/newlandsvalley/purescript-midi.git#master",
     "purescript-soundfonts": "https://github.com/newlandsvalley/purescript-soundfonts.git#master",
     "purescript-console": "^4.1.0"
   },
