@@ -17,7 +17,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Int (fromString)
 import Data.Array.NonEmpty (NonEmptyArray, index)
 import Data.Tuple (Tuple(..))
-import Foreign.Object (Object, fromFoldable, lookup)
+import Data.Map (Map, fromFoldable, lookup)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Partial.Unsafe (unsafePartial)
 
@@ -31,16 +31,17 @@ instance showRecordingFormat :: Show RecordingFormat where
   show MP3 = "mp3"
   show OGG = "ogg"
 
-data SoundFontType = Fluid3 | MusyngKite
+data SoundFontType = Fluid3 | MusyngKite | FatBoy
 
 instance showSoundFontType :: Show SoundFontType where
   show Fluid3 = "FluidR3_GM"
   show MusyngKite = "MusyngKite"
+  show FatBoy= "FatBoy"
 
 type Pitch = String
 
 -- | note sequences start at C with the normal intervals between the white notes
-semitones :: Object Int
+semitones :: Map String Int
 semitones = fromFoldable
     [ Tuple "C" 0
     , Tuple "D" 2
