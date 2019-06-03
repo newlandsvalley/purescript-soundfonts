@@ -1,4 +1,4 @@
-module Audio.SoundFont.Melody.Maker (toMelody) where
+module Audio.SoundFont.Melody.Maker (toMelody, toMelody_) where
 
 -- | Convert a MIDI Recording to a playable melody.
 
@@ -39,36 +39,44 @@ type TState =
     , phraseOffset :: Number      -- the offset of the current phrase
     , currentPhrase :: MidiPhrase -- the current phrase being built from completed notes
     , currentNoteMap :: NoteMap   -- the set of notes currently being built
+    , phraseSize :: Number        -- the maximum size of each phrase
     , melody :: Melody            -- the ever-increasing set of generated phrases
   }
 
 type TransformationState =
   Tuple TState Melody
 
--- the max size of a phrase (in seconds) between which view updates can occur
--- vary this to get a good balance between playing the melody in time
+-- the default max size of a phrase (in seconds) between which view updates
+-- can occur. Vary this to get a good balance between playing the melody in time
 -- and being able to update the UI
-phraseSize :: Number
-phraseSize = 0.6
+defaultPhraseSize :: Number
+defaultPhraseSize = 0.6
 
-initialTState :: Int -> TState
-initialTState ticksPerBeat =
+initialTState :: Int -> Number -> TState
+initialTState ticksPerBeat phraseSize =
   { ticksPerBeat : ticksPerBeat
   , tempo : 1000000
   , noteOffset : 0.0
   , phraseOffset : 0.0
   , currentPhrase : []
   , currentNoteMap : Map.empty
+  , phraseSize : phraseSize
   , melody : []
   }
 
-initialTransformationState :: Int -> TransformationState
-initialTransformationState ticksPerBeat =
-  Tuple (initialTState ticksPerBeat) []
+initialTransformationState :: Int -> Number -> TransformationState
+initialTransformationState ticksPerBeat phraseSize =
+  Tuple (initialTState ticksPerBeat phraseSize) []
 
--- | transform a Midi.Recording to a MIDI melody
+-- | transform a Midi.Recording to a MIDI melody using the default
+-- | phrase size of 0.6 seconds
 toMelody :: Midi.Recording -> Melody
-toMelody (Midi.Recording recording) =
+toMelody recording =
+  toMelody_ defaultPhraseSize recording
+
+-- | transform a Midi.Recording to a MIDI melody with a user-defined phrase size
+toMelody_ :: Number -> Midi.Recording -> Melody
+toMelody_ phraseSize (Midi.Recording recording) =
   let
     mtrack0 :: Maybe Midi.Track
     mtrack0 = head recording.tracks
@@ -76,8 +84,9 @@ toMelody (Midi.Recording recording) =
     Midi.Header header = recording.header
   in
     do
-      ControlState.evalState (transformTrack track0) (initialTransformationState header.ticksPerBeat)
-
+      ControlState.evalState
+        (transformTrack track0)
+        (initialTransformationState header.ticksPerBeat phraseSize)
 
 transformTrack :: List Midi.Message -> ControlState.State TransformationState Melody
 transformTrack Nil =
@@ -189,7 +198,7 @@ finaliseNote channel pitch velocity endOffset tstate =
           -- and there aren't any other half-built notes left
           -- which would indicate a chord
           -- (i.e. the currentNoteMap must be empty)
-          if ((endOffset - tstate.phraseOffset) > phraseSize)
+          if ((endOffset - tstate.phraseOffset) > tstate.phraseSize)
                 && (Map.isEmpty currentNoteMap) then
             tstate { currentNoteMap = currentNoteMap
                    , noteOffset = endOffset
