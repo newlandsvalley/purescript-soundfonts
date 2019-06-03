@@ -87,15 +87,15 @@ midiPitch1 s =
             _ -> Nothing
       in
         case (Tuple mpitch moctave) of
-          (Tuple (Just p) (Just oct)) -> Just $ toMidiPitch oct p acc
+          (Tuple (Just p) (Just oct)) -> Just $ buildMidiPitch oct p acc
           _ -> Nothing
 
 -- | build a MIDI pitch (middle C = C4)
 -- | building from the octave number, pitch (relative to C)
 -- | and any accidental offset (i.e. flat lowers pitch by 1, sharp raised it)
 -- | The MIDI standard does not standardise on a particular middle C
-toMidiPitch :: Int -> Int -> Int -> Int
-toMidiPitch octave pitch accidental =
+buildMidiPitch :: Int -> Int -> Int -> Int
+buildMidiPitch octave pitch accidental =
   (12 * octave) + pitch + accidental + 12
 
 lookupPitch :: Pitch -> Maybe Int

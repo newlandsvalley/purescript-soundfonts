@@ -1,10 +1,6 @@
 purescript-soundfonts example
 =============================
 
+This example just demonstrates the ability to play a few notes in different soundfonts.
 
-## Example
-
-    bower install
-    ./build.sh
-
-host on your web server and then navigate to dist/index.html
+Host on your web server and then navigate to dist/index.html

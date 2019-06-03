@@ -1,4 +1,4 @@
-module Main where
+module Example.Main where
 
 import Prelude (bind, ($), (*))
 import Effect (Effect)
