@@ -17,16 +17,16 @@
   },
   "dependencies": {
     "purescript-prelude": "^4.0.1",
-    "purescript-affjax": "^6.0.0",
+    "purescript-affjax": "^9.0.0",
     "purescript-parallel": "^4.0.0",
-    "purescript-argonaut-core": "^4.0.1",
+    "purescript-argonaut-core": "^5.0.0",
     "purescript-b64": "^0.0.5",
     "purescript-midi": "^2.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0",
     "purescript-test-unit": "^14.0.0",
-    "purescript-console": "^4.1.0",
+    "purescript-console": "^4.2.0",
     "purescript-node-fs-aff": "^6.0.0"
   }
 }

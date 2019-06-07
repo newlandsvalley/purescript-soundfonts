@@ -36,8 +36,8 @@ import Data.Bifunctor (rmap)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
-import Network.HTTP.Affjax (affjax, defaultRequest)
-import Network.HTTP.Affjax.Response as Response
+import Affjax (request, defaultRequest)
+import Affjax.ResponseFormat as ResponseFormat
 import Prelude (Unit, bind, identity, map, pure, show, ($), (<>), (<<<))
 
 -- | The SoundFont API which we will expose
@@ -120,12 +120,19 @@ loadInstrument maybeLocalDir instrumentName = do
           localUrl instrumentName localDir recordingFormat
         _ ->
           gleitzUrl instrumentName MusyngKite recordingFormat
-  res <- affjax Response.string $ defaultRequest { url = url, method = Left GET }
-  let
-    ejson = midiJsToNoteMap instrumentName res.response
-    noteMap = either (\_ -> empty) identity ejson
-  font <- traverse decodeAudioBuffer noteMap
-  pure (Tuple instrumentName font)
+  res <- request $ defaultRequest
+    { url = url, method = Left GET, responseFormat = ResponseFormat.string }
+
+  case res.body of
+    Left err -> do
+      _ <- liftEffect $ log $ "instrument failed to load: " <> url
+      pure (Tuple instrumentName empty)
+    Right body -> do
+      let
+        ejson = midiJsToNoteMap instrumentName body
+        noteMap = either (\_ -> empty) identity ejson
+      font <- traverse decodeAudioBuffer noteMap
+      pure (Tuple instrumentName font)
 
 -- | load a bunch of instrument SoundFonts (in parallel)
 -- | again with options to load either locally or remotely
@@ -200,11 +207,19 @@ logLoadResource instrument =
     url = gleitzUrl instrument MusyngKite OGG
   in
     launchAff $ do
-      res <- affjax Response.string $ defaultRequest { url = url, method = Left GET }
+      res <- request $ defaultRequest
+               { url = url, method = Left GET, responseFormat = ResponseFormat.string }
 
-      let
-        ejson = midiJsToNoteMap instrument res.response
-      liftEffect $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
+      case res.body of
+        Left err ->
+          liftEffect $ log $ "instrument failed to load: " <> url
+        Right body -> do
+          let
+            ejson = midiJsToNoteMap instrument body
+          liftEffect $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
+
+
+
 
 
 -- | use OGG if we can, otherwise default to MP3
