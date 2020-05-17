@@ -158,6 +158,7 @@ foreign import playFontNote
   :: FontNote -> Effect Number
 
 -- | play a single note through its soundfont buffer
+-- | if thhe note lookup fails, treat the note as a Rest and return its duration
 playNote :: Array Instrument -> MidiNote -> Effect Number
 playNote instruments note =
   let
@@ -166,8 +167,10 @@ playNote instruments note =
     case maybeInstrument of
       Just (Tuple name soundfont) ->
         case lookup note.id soundfont of
+          -- play the note
           Just b -> playFontNote $ fontNote b note
-          _ -> pure 0.0
+          -- play nothing ofr the note duration - a resr
+          _ -> pure note.duration
       _ -> pure 0.0
 
 -- | play a bunch of notes asynchronously
