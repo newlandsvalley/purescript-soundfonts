@@ -26,7 +26,7 @@ import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Control.Parallel (parallel, sequential)
-import Data.Array (head, index, mapWithIndex, reverse)
+import Data.Array (index, last, mapWithIndex)
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
@@ -38,7 +38,7 @@ import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
 import Affjax (request, defaultRequest)
 import Affjax.ResponseFormat as ResponseFormat
-import Prelude (Unit, bind, identity, map, pure, show, ($), (<>), (<<<))
+import Prelude (Unit, bind, identity, map, pure, show, ($), (+), (<>), (<<<))
 
 -- | The SoundFont API which we will expose
 
@@ -157,8 +157,11 @@ decodeAudioBuffer =
 foreign import playFontNote
   :: FontNote -> Effect Number
 
--- | play a single note through its soundfont buffer
--- | if thhe note lookup fails, treat the note as a Rest and return its duration
+-- | play a single note through its soundfont buffer.
+-- | if the note cannot be played because it:
+-- |    uses an invalid instrument
+-- |    has a note index that can't be resolved
+-- | then treat the note as a Rest, with its stated duration
 playNote :: Array Instrument -> MidiNote -> Effect Number
 playNote instruments note =
   let
@@ -169,9 +172,9 @@ playNote instruments note =
         case lookup note.id soundfont of
           -- play the note
           Just b -> playFontNote $ fontNote b note
-          -- play nothing ofr the note duration - a resr
-          _ -> pure note.duration
-      _ -> pure 0.0
+          -- play nothing for the note duration - this represents a rest
+          _ -> pure $ note.timeOffset + note.duration
+      _ -> pure $ note.timeOffset + note.duration
 
 -- | play a bunch of notes asynchronously
 -- | return the duration of the phrase
@@ -194,12 +197,8 @@ instrumentChannels is =
 
 -- | return the overall duration of the last note played from a sequence of notes
 lastDuration :: Array Number -> Number
-lastDuration fs =
-  let
-    last = head $ reverse fs
-  in
-    fromMaybe 0.0 last
-
+lastDuration ns =
+  fromMaybe 0.0 $ last ns
 
 -- | just for debug
 logLoadResource  ::
