@@ -18,7 +18,7 @@ import Data.Either (either)
 import Data.Map (empty)
 import Data.Map.Internal (size)
 import Data.Midi as Midi
-import Test.Unit (Test, TestF, suite, test, failure, success)
+import Test.Unit (Test, TestF, failure, suite, test)
 import Test.Unit.Assert as Assert
 import Test.Unit.Main (runTest)
 import Effect (Effect)

@@ -17,28 +17,27 @@ module Audio.SoundFont (
   , instrumentChannels
   ) where
 
+import Affjax (defaultRequest, request)
+import Affjax.ResponseFormat as ResponseFormat
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
-import Control.Monad (liftM1)
-import Effect.Aff (Aff, Fiber, launchAff)
-import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Effect (Effect)
-import Effect.Class (liftEffect)
-import Effect.Console (log)
 import Control.Parallel (parallel, sequential)
 import Data.Array (index, last, mapWithIndex)
 import Data.ArrayBuffer.Types (Uint8Array)
+import Data.Bifunctor (rmap)
 import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
 import Data.Map (Map, lookup, empty, fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Bifunctor (rmap)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
-import Affjax (request, defaultRequest)
-import Affjax.ResponseFormat as ResponseFormat
-import Prelude (Unit, bind, identity, map, pure, show, ($), (+), (<>), (<<<))
+import Effect (Effect)
+import Effect.Aff (Aff, Fiber, launchAff)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
+import Effect.Class (liftEffect)
+import Effect.Console (log)
+import Prelude
 
 -- | The SoundFont API which we will expose
 
@@ -123,7 +122,7 @@ loadInstrument maybeLocalDir instrumentName = do
   res <- request $ defaultRequest
     { url = url, method = Left GET, responseFormat = ResponseFormat.string }
 
-  case res.body of
+  case res <#> _.body of
     Left err -> do
       _ <- liftEffect $ log $ "instrument failed to load: " <> url
       pure (Tuple instrumentName empty)
@@ -211,8 +210,7 @@ logLoadResource instrument =
     launchAff $ do
       res <- request $ defaultRequest
                { url = url, method = Left GET, responseFormat = ResponseFormat.string }
-
-      case res.body of
+      case res <#> _.body of
         Left err ->
           liftEffect $ log $ "instrument failed to load: " <> url
         Right body -> do
