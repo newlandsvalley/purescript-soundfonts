@@ -120,7 +120,7 @@ in upstream
        , "signal"
        ]
     , repo =
-       "https://github.com/i-am-the-slime/purescript-midi.git"
+       "https://github.com/newlandsvalley/purescript-midi.git"
     , version =
         "master"
     }
