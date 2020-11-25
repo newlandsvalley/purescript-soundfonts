@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/newlandsvalley/purescript-soundfonts.git"
+    "url": "https://github.com/newlandsvalley/purescript-soundfonts.git"
   },
   "dependencies": {
     "purescript-prelude": "^4.1.1",
