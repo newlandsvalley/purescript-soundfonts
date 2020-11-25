@@ -22,7 +22,7 @@
     "purescript-argonaut-core": "^5.0.0",
     "purescript-encoding": "^0.0.6",
     "purescript-b64": "^0.0.6",
-    "purescript-midi": "^2.2.1"
+    "purescript-midi": "^2.3.2"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0",

@@ -1,6 +1,10 @@
 # Changelog
 
-### Version 3.0.0
+### Version 3.1.0
+
+* add spago
+
+### Version 3.0.0 (2018-07-19)
 
 * PureScript 12.0
 
