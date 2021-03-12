@@ -121,7 +121,7 @@ in  upstream
         , "strings"
         ]
       , repo =
-          "https://github.com/CarstenKoenig/purescript-b64.git"
+          "https://github.com/menelaos/purescript-b64.git"
       , version =
-          "d0644230a75d2ea41b355bbf4d48f05e3977262c"
+          "v0.0.7"
       }

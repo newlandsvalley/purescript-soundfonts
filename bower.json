@@ -20,8 +20,8 @@
     "purescript-affjax": "^12.0.0",
     "purescript-parallel": "^5.0.0",
     "purescript-argonaut-core": "^6.0.0",
-    "purescript-encoding": "0.0.7",
-    "purescript-b64": "https://github.com/CarstenKoenig/purescript-b64.git# purescript-0.14",
+    "purescript-encoding": "^0.0.7",
+    "purescript-b64": "^0.0.7",
     "purescript-midi": "^3.0.0"
   },
   "devDependencies": {
