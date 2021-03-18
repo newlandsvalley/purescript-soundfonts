@@ -1,8 +1,9 @@
 purescript-soundfonts
 =====================
 
+[![Build Status](https://github.com/newlandsvalley/purescript-soundfonts/workflows/CI/badge.svg)](https://github.com/newlandsvalley/purescript-soundfonts/actions)
+
 [![Latest release](http://img.shields.io/github/release/newlandsvalley/purescript-soundfonts.svg)](https://github.com/newlandsvalley/purescript-soundfonts/releases)
-[![Build Status](https://travis-ci.org/newlandsvalley/purescript-soundfonts.svg?branch=master)](https://travis-ci.org/newlandsvalley/purescript-soundfonts)
 
 This library allows you to play music directly in the browser using a variety of instruments.  These are provided, courtesy of Benjamin Gleitzman's package of [pre-rendered sound fonts](https://github.com/gleitz/midi-js-soundfonts). You can either load them remotely from the Gleitzman GitHub account or else host then locally on your own server.  They load as dictionaries of AudioBuffers - one for each note on each selected instrument. Once loaded. you can play individual notes or groups of notes on your instruments of choice.
 
