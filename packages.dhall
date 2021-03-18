@@ -105,23 +105,6 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.0-20210311/packages.dhall sha256:3da8be2b7b4a0e7de6186591167b363023695accffb98a8639e9e7d06e2070d6
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.0-20210318/packages.dhall sha256:98bbacd65191cef354ecbafa1610be13e183ee130491ab9c0ef6e3d606f781b5
 
 in  upstream
-  with b64 =
-      { dependencies =
-        [ "arraybuffer-types"
-        , "either"
-        , "encoding"
-        , "enums"
-        , "exceptions"
-        , "functions"
-        , "partial"
-        , "prelude"
-        , "strings"
-        ]
-      , repo =
-          "https://github.com/menelaos/purescript-b64.git"
-      , version =
-          "v0.0.7"
-      }
