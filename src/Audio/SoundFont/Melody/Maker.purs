@@ -172,7 +172,7 @@ addNoteOn channel pitch velocity offset tstate =
 
 -- finalise the note once the NoteOff message arrives
 -- the note should exist in the map which would
--- be established by a previous NoteOn but neewds a
+-- be established by a previous NoteOn but needs a
 -- finalising duration
 finaliseNote :: Int -> Int -> Int -> Number -> TState -> TState
 finaliseNote channel pitch velocity endOffset tstate =

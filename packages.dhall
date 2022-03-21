@@ -105,6 +105,30 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.0-20210318/packages.dhall sha256:98bbacd65191cef354ecbafa1610be13e183ee130491ab9c0ef6e3d606f781b5
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.7-20220321/packages.dhall
+        sha256:dff91304260c1196273badf7d8141e66ab16bed147b95aa175dd8a84ec87d58f
 
 in  upstream
+  with midi =
+      { dependencies =
+        [ "arrays"
+        , "control"
+        , "effect"
+        , "either"
+        , "foldable-traversable"
+        , "integers"
+        , "lists"
+        , "maybe"
+        , "ordered-collections"
+        , "prelude"
+        , "signal"
+        , "string-parsers"
+        , "strings"
+        , "tuples"
+        , "unfoldable"
+        ]
+      , repo =
+          "https://github.com/newlandsvalley/purescript-midi.git"
+      , version =
+          "v3.1.0"
+      }

@@ -11,7 +11,6 @@ module Audio.SoundFont.Gleitz (
 import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
-import Data.String (toUpper)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Int (fromString)
@@ -98,9 +97,11 @@ buildMidiPitch :: Int -> Int -> Int -> Int
 buildMidiPitch octave pitch accidental =
   (12 * octave) + pitch + accidental + 12
 
+{-
 lookupPitch :: Pitch -> Maybe Int
 lookupPitch p =
   lookup (toUpper p) semitones
+-}
 
 -- | this should parse Bb0 into
 -- | Just [(Just "Bb0"),(Just "B"),(Just "b"),(Just "0")]

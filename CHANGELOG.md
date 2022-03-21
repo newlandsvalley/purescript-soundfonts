@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 3.3.0 (2022-03-21)
+
+* PureScript 14.7
+* midi 0.3.1 
+
 ### Version 3.2.0 (2021-03-18)
 
 * PureScript 14.0

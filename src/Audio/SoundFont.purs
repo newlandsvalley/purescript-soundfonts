@@ -123,7 +123,7 @@ loadInstrument maybeLocalDir instrumentName = do
     { url = url, method = Left GET, responseFormat = ResponseFormat.string }
 
   case res <#> _.body of
-    Left err -> do
+    Left _ -> do
       _ <- liftEffect $ log $ "instrument failed to load: " <> url
       pure (Tuple instrumentName empty)
     Right body -> do
@@ -167,7 +167,7 @@ playNote instruments note =
     maybeInstrument = index instruments note.channel
   in
     case maybeInstrument of
-      Just (Tuple name soundfont) ->
+      Just (Tuple _ soundfont) ->
         case lookup note.id soundfont of
           -- play the note
           Just b -> playFontNote $ fontNote b note
@@ -211,16 +211,12 @@ logLoadResource instrument =
       res <- request $ defaultRequest
                { url = url, method = Left GET, responseFormat = ResponseFormat.string }
       case res <#> _.body of
-        Left err ->
+        Left _ ->
           liftEffect $ log $ "instrument failed to load: " <> url
         Right body -> do
           let
             ejson = midiJsToNoteMap instrument body
           liftEffect $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
-
-
-
-
 
 -- | use OGG if we can, otherwise default to MP3
 prefferedRecordingFormat :: Effect  RecordingFormat
