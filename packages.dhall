@@ -109,26 +109,3 @@ let upstream =
         sha256:dff91304260c1196273badf7d8141e66ab16bed147b95aa175dd8a84ec87d58f
 
 in  upstream
-  with midi =
-      { dependencies =
-        [ "arrays"
-        , "control"
-        , "effect"
-        , "either"
-        , "foldable-traversable"
-        , "integers"
-        , "lists"
-        , "maybe"
-        , "ordered-collections"
-        , "prelude"
-        , "signal"
-        , "string-parsers"
-        , "strings"
-        , "tuples"
-        , "unfoldable"
-        ]
-      , repo =
-          "https://github.com/newlandsvalley/purescript-midi.git"
-      , version =
-          "v3.1.0"
-      }
