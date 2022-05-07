@@ -32,5 +32,6 @@ You can edit this file as you like.
   , "tuples"
   ]
 , packages = ./packages.dhall
+, license = "MIT"
 , sources = [ "src/**/*.purs" ]
 }
