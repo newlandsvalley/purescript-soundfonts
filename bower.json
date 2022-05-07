@@ -1,0 +1,44 @@
+{
+    "name": "purescript-soundfonts",
+    "license": [
+        "MIT"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/newlandsvalley/purescript-soundfonts"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "output"
+    ],
+    "dependencies": {
+        "purescript-aff": "^v7.0.0",
+        "purescript-affjax": "^v13.0.0",
+        "purescript-affjax-web": "https://github.com/purescript-contrib/purescript-affjax-web.git#v1.0.0",
+        "purescript-argonaut-core": "^v7.0.0",
+        "purescript-arraybuffer-types": "^v3.0.2",
+        "purescript-arrays": "^v7.0.0",
+        "purescript-b64": "^v0.0.8",
+        "purescript-bifunctors": "^v6.0.0",
+        "purescript-console": "^v6.0.0",
+        "purescript-effect": "^v4.0.0",
+        "purescript-either": "^v6.0.0",
+        "purescript-exceptions": "^v6.0.0",
+        "purescript-foldable-traversable": "^v6.0.0",
+        "purescript-foreign-object": "^v4.0.0",
+        "purescript-http-methods": "^v6.0.0",
+        "purescript-integers": "^v6.0.0",
+        "purescript-lists": "^v7.0.0",
+        "purescript-maybe": "^v6.0.0",
+        "purescript-midi": "^v4.0.0",
+        "purescript-ordered-collections": "^v3.0.0",
+        "purescript-parallel": "^v6.0.0",
+        "purescript-partial": "^v4.0.0",
+        "purescript-prelude": "^v6.0.0",
+        "purescript-strings": "^v6.0.0",
+        "purescript-transformers": "^v6.0.0",
+        "purescript-tuples": "^v7.0.0"
+    }
+}
