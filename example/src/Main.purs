@@ -61,7 +61,6 @@ playExample :: Effect (Fiber Number)
 playExample = launchAff $ do
   instruments <- loadRemoteSoundFonts [Marimba, AcousticGrandPiano, TangoAccordion]
 
-  _ <- delay (Milliseconds $ 1000.0)
   da <- liftEffect $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
   db <- liftEffect $ playNote instruments noteSampleC

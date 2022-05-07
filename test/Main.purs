@@ -7,65 +7,68 @@ module Test.Main where
 
 import Prelude
 
-import Audio.SoundFont.Gleitz (midiPitch)
 import Audio.SoundFont.Decoder (NoteMap, midiJsToNoteMap)
+import Audio.SoundFont.Gleitz (midiPitch)
 import Audio.SoundFont.Melody (Melody)
 import Audio.SoundFont.Melody.Class (MidiRecording(..), toMelody)
-import Control.Monad.Free (Free)
-import Data.List (List(..), (:), singleton)
+import Control.Monad.Error.Class (class MonadThrow)
 import Data.Array (concat, length)
 import Data.Either (either)
+import Data.List (List(..), (:), singleton)
 import Data.Map (empty)
 import Data.Map.Internal (size)
 import Data.Midi as Midi
-import Test.Unit (Test, TestF, failure, suite, test)
-import Test.Unit.Assert as Assert
-import Test.Unit.Main (runTest)
-import Effect (Effect)
-import Node.FS.Aff (readTextFile)
-import Node.Encoding (Encoding(UTF8))
 import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
+import Effect (Effect)
+import Effect.Aff (launchAff_)
+import Effect.Exception (Error)
+import Node.Encoding (Encoding(UTF8))
+import Node.FS.Aff (readTextFile)
+import Test.Spec (Spec, describe, it)
+import Test.Spec.Assertions (fail, shouldEqual)
+import Test.Spec.Reporter (specReporter)
+import Test.Spec.Runner (runSpec)
 
-gleitzSuite :: Free TestF Unit
-gleitzSuite =
-  suite "gleitz" do
-    test "midi pitch C4" do
-      Assert.equal 60 (midiPitch "C4")
-    test "midi pitch Bb1" do
-      Assert.equal 34 (midiPitch "Bb1")
-    test "midi pitch A#1" do
-      Assert.equal 34 (midiPitch "A#1")
-    test "midi pitch A4" do
-      Assert.equal 69 (midiPitch "A4")
-    test "midi pitch C8" do
-      Assert.equal 108 (midiPitch "C8")
+gleitzSpec :: Spec Unit
+gleitzSpec =
+  describe "gleitz" do
+    it "knows midi pitch C4" do
+      60 `shouldEqual` (midiPitch "C4")
+    it "knows midi pitch Bb1" do
+      34 `shouldEqual` (midiPitch "Bb1")
+    it "knows midi pitch A#1" do
+      34 `shouldEqual` (midiPitch "A#1")
+    it "knows midi pitch A4" do
+      69 `shouldEqual` (midiPitch "A4")
+    it "knows midi pitch C8" do
+      108 `shouldEqual` (midiPitch "C8")
 
-playableSuite :: Free TestF Unit
-playableSuite =
-  suite "playable" do
-    test "melody generation from midi" do
-      Assert.equal 2 (length generateMelody)          -- 2 phrases
-      Assert.equal 4 (length $ concat generateMelody) -- 4 notes overall
+playableSpec :: Spec Unit
+playableSpec =
+  describe "playable" do
+    it "generate melody from midi" do
+      2 `shouldEqual` (length generateMelody)          -- 2 phrases
+      4 `shouldEqual` (length $ concat generateMelody) -- 4 notes overall
 
-decodeSuite :: Free TestF Unit
-decodeSuite =
-  suite "decode" do
-    test "decode json to array buffer Map" do
+decodeSpec :: Spec Unit
+decodeSpec =
+  describe "decode" do
+    it "decodes json to array buffer Map" do
       pianoFontJson <- readTextFile UTF8 "gleitz/acoustic_grand_piano-ogg.js"
       let
         eNoteMap = midiJsToNoteMap AcousticGrandPiano pianoFontJson
-      either (\e -> failure $ show e) checkNoteMapSize eNoteMap
+      either (\e -> fail $ show e) checkNoteMapSize eNoteMap
 
-checkNoteMapSize :: NoteMap -> Test
+checkNoteMapSize :: forall m. MonadThrow Error m => NoteMap -> m Unit
 checkNoteMapSize noteMap =
-  Assert.equal 88 (size noteMap)
+  88 `shouldEqual` (size noteMap)
 
 main :: Effect Unit
-main = runTest do
-  suite "soundfonts" do
-    gleitzSuite
-    playableSuite
-    decodeSuite
+main = launchAff_ $ runSpec [ specReporter] do
+  describe "soundfonts" do
+    gleitzSpec
+    playableSpec
+    decodeSpec
 
 generateMelody :: Melody
 generateMelody =
