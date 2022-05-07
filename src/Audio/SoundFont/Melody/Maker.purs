@@ -175,7 +175,7 @@ addNoteOn channel pitch velocity offset tstate =
 -- be established by a previous NoteOn but needs a
 -- finalising duration
 finaliseNote :: Int -> Int -> Int -> Number -> TState -> TState
-finaliseNote channel pitch velocity endOffset tstate =
+finaliseNote channel pitch _velocity endOffset tstate =
   let
     key = noteKey channel pitch
     mpnote = Map.lookup key tstate.currentNoteMap

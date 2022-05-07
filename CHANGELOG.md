@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 4.0.0 (2022-04-07)
+
+* PureScript 0.15.0
+* (replace test-unit with spec)
+
 ### Version 3.3.0 (2022-03-21)
 
 * PureScript 14.7
