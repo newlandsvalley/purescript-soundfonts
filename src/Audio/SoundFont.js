@@ -112,8 +112,8 @@ var sf = function() {
      };
   }();
 
-exports.isWebAudioEnabled = sf.isWebAudioEnabled;
-exports.canPlayOgg = sf.canPlayOgg;
-exports.setNoteRing = sf.setNoteRing;
-exports.decodeAudioBufferImpl = sf.decodeAudioBufferImpl;
-exports.playFontNote = sf.playFontNote;
+export var isWebAudioEnabled = sf.isWebAudioEnabled;
+export var canPlayOgg = sf.canPlayOgg;
+export var setNoteRing = sf.setNoteRing;
+export var decodeAudioBufferImpl = sf.decodeAudioBufferImpl;
+export var playFontNote = sf.playFontNote;

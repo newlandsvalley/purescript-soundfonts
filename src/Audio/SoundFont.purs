@@ -17,7 +17,7 @@ module Audio.SoundFont (
   , instrumentChannels
   ) where
 
-import Affjax (defaultRequest, request)
+import Affjax.Web (defaultRequest, request)
 import Affjax.ResponseFormat as ResponseFormat
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
