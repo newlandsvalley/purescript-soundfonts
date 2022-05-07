@@ -25,6 +25,7 @@
         "purescript-console": "^v6.0.0",
         "purescript-effect": "^v4.0.0",
         "purescript-either": "^v6.0.0",
+        "purescript-encoding": "^v0.0.8",
         "purescript-exceptions": "^v6.0.0",
         "purescript-foldable-traversable": "^v6.0.0",
         "purescript-foreign-object": "^v4.0.0",
