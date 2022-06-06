@@ -1,5 +1,5 @@
-module Audio.SoundFont (
-    AudioBuffer
+module Audio.SoundFont
+  ( AudioBuffer
   , Instrument
   , InstrumentChannels
   , MidiNote
@@ -41,7 +41,6 @@ import Prelude
 
 -- | The SoundFont API which we will expose
 
-
 -- | the Audio Buffer for a single note
 foreign import data AudioBuffer :: Type
 
@@ -57,19 +56,19 @@ type InstrumentChannels = Map InstrumentName Int
 
 -- | A Midi Note
 type MidiNote =
-  { channel :: Int           -- the MIDI channel
-  , id  :: Int               -- the MIDI pitch number
-  , timeOffset :: Number     -- the time delay in seconds before the note is played
-  , duration :: Number       -- the duration of the note
-  , gain :: Number           -- the volume (between 0 and 1)
+  { channel :: Int -- the MIDI channel
+  , id :: Int -- the MIDI pitch number
+  , timeOffset :: Number -- the time delay in seconds before the note is played
+  , duration :: Number -- the duration of the note
+  , gain :: Number -- the volume (between 0 and 1)
   }
 
 -- | A Midi Note with the appropriate font
 type FontNote =
-  { buffer  ::  AudioBuffer  -- the Audio buffer for a particular note on a particular instrument
-  , timeOffset :: Number     -- the time delay in seconds before the note is played
-  , duration :: Number       -- the duration of the note (sec)
-  , gain :: Number           -- the volume (between 0 and 1)
+  { buffer :: AudioBuffer -- the Audio buffer for a particular note on a particular instrument
+  , timeOffset :: Number -- the time delay in seconds before the note is played
+  , duration :: Number -- the duration of the note (sec)
+  , gain :: Number -- the volume (between 0 and 1)
   }
 
 -- | can the browser play ogg format ?
@@ -88,15 +87,15 @@ foreign import setNoteRing
   :: Number -> Effect Unit
 
 -- | load a bunch of soundfonts from the Gleitzmann server
-loadRemoteSoundFonts ::
-  Array InstrumentName
+loadRemoteSoundFonts
+  :: Array InstrumentName
   -> Aff (Array Instrument)
 loadRemoteSoundFonts =
   loadInstruments Nothing
 
 -- | load the piano soundfont from a relative directory on the local server
-loadPianoSoundFont ::
-  String
+loadPianoSoundFont
+  :: String
   -> Aff Instrument
 loadPianoSoundFont localDir =
   loadInstrument (Just localDir) AcousticGrandPiano
@@ -106,8 +105,8 @@ loadPianoSoundFont localDir =
 -- |   Benjamin Gleitzman's server (default)
 -- |   A directory from the local server if this is supplied
 
-loadInstrument ::
-  Maybe String
+loadInstrument
+  :: Maybe String
   -> InstrumentName
   -> Aff Instrument
 loadInstrument maybeLocalDir instrumentName = do
@@ -136,15 +135,15 @@ loadInstrument maybeLocalDir instrumentName = do
 -- | load a bunch of instrument SoundFonts (in parallel)
 -- | again with options to load either locally or remotely
 -- | from Benjamin Gleitzman's server
-loadInstruments ::
-  Maybe String
+loadInstruments
+  :: Maybe String
   -> Array InstrumentName
   -> Aff (Array Instrument)
 loadInstruments maybeLocalDir instrumentNames =
   sequential $ traverse (\name -> parallel (loadInstrument maybeLocalDir name)) instrumentNames
 
 foreign import decodeAudioBufferImpl
-  :: Uint8Array  -> EffectFnAff AudioBuffer
+  :: Uint8Array -> EffectFnAff AudioBuffer
 
 -- | decode the AudioBuffer for a given note
 decodeAudioBuffer :: Uint8Array -> Aff AudioBuffer
@@ -200,16 +199,16 @@ lastDuration ns =
   fromMaybe 0.0 $ last ns
 
 -- | just for debug
-logLoadResource  ::
-  InstrumentName ->
-  Effect (Fiber Unit)
+logLoadResource
+  :: InstrumentName
+  -> Effect (Fiber Unit)
 logLoadResource instrument =
   let
     url = gleitzUrl instrument MusyngKite OGG
   in
     launchAff $ do
       res <- request $ defaultRequest
-               { url = url, method = Left GET, responseFormat = ResponseFormat.string }
+        { url = url, method = Left GET, responseFormat = ResponseFormat.string }
       case res <#> _.body of
         Left _ ->
           liftEffect $ log $ "instrument failed to load: " <> url
@@ -219,18 +218,17 @@ logLoadResource instrument =
           liftEffect $ log $ "extract JSON: " <> (either show (debugNoteIds) ejson)
 
 -- | use OGG if we can, otherwise default to MP3
-prefferedRecordingFormat :: Effect  RecordingFormat
+prefferedRecordingFormat :: Effect RecordingFormat
 prefferedRecordingFormat =
   liftM1 (\b -> if b then OGG else MP3) canPlayOgg
 
 -- | turn a MIDI note (and audio buffer) into a font note (suitable for JS)
 fontNote :: AudioBuffer -> MidiNote -> FontNote
 fontNote buffer n =
-  {
-    buffer : buffer
-  , timeOffset : n.timeOffset
-  , duration : n.duration
-  , gain : n.gain
+  { buffer: buffer
+  , timeOffset: n.timeOffset
+  , duration: n.duration
+  , gain: n.gain
   }
 
 -- | build a local URL where the instrument font is contained

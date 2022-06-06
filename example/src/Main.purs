@@ -3,15 +3,18 @@ module Example.Main where
 import Prelude (Unit, bind, discard, map, pure, unit, ($), (*), (>>=))
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Effect.Aff (Fiber, launchAff, delay)
+import Effect.Aff (Aff, Fiber, launchAff, delay)
 import Effect.Exception (throw)
 import Data.Time.Duration (Milliseconds(..))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
-import Audio.SoundFont (MidiNote
+import Data.Unfoldable (replicate)
+import Audio.SoundFont (Instrument
+  , MidiNote
   , loadRemoteSoundFonts
   , playNote
   , playNotes)
+import Audio.SoundFont.Melody (playMelody)
 import Data.Midi.Instrument (InstrumentName(..))
 import Web.DOM.ParentNode (querySelector)
 import Web.Event.EventTarget (EventTarget, addEventListener, eventListener)
@@ -43,8 +46,6 @@ notesSample channel =
  , note channel 71 3.0 1.5 1.0
  ]
 
--- | load remote fonts example
-
 main :: Effect Unit
 main = do
   -- a user gesture is required before the browser is allowed to use web-audio
@@ -52,50 +53,34 @@ main = do
   play <- querySelector (wrap "#play") doc
   case play of
     Just e -> do
-      el <- eventListener \_ -> playExample
+      el <- eventListener \_ -> playAll
       addEventListener (wrap "click") el false (unsafeCoerce e :: EventTarget)
     Nothing -> throw "No 'play' button"
   pure unit
 
-playExample :: Effect (Fiber Number)
-playExample = launchAff $ do
+playAll :: Effect (Fiber Unit)
+playAll = launchAff $ do
   instruments <- loadRemoteSoundFonts [Marimba, AcousticGrandPiano, TangoAccordion]
+  _ <- playNotesExample instruments 
+  playMelodyExample instruments 
 
+
+-- | play example using playNotes
+playNotesExample :: Array Instrument -> Aff Unit
+playNotesExample instruments = do
   da <- liftEffect $ playNote instruments noteSampleA
   _ <- delay (Milliseconds $ 1000.0 * da)
   db <- liftEffect $ playNote instruments noteSampleC
   _ <- delay (Milliseconds $ 1000.0 * db)
   de <- liftEffect $ playNote instruments noteSampleE
   _ <- delay (Milliseconds $ 1000.0 * de)
-  liftEffect $ playNotes instruments (notesSample 2)
+  df <- liftEffect $ playNotes instruments (notesSample 2)
+  delay (Milliseconds $ 1000.0 * df)
 
-
-
-{-
--- | load local piano font example
-pianoExample :: ∀ eff.
-  Eff
-    ( ajax :: AJAX
-    , au :: AUDIO
-    | eff
-    )
-    (Fiber
-       ( ajax :: AJAX
-       , au :: AUDIO
-       | eff
-       )
-       Number
-    )
-pianoExample = launchAff $ do
-  -- instrument <- loadInstrument (Just "soundfonts") "acoustic_grand_piano"
-  instrument <- loadPianoSoundFont "soundfonts"
+-- playMelody example (on the piano)
+playMelodyExample :: Array Instrument -> Aff Unit
+playMelodyExample instruments = do
   let
-    instruments = singleton instrument
-  da <- liftEff $ playNote instruments noteSampleA
-  _ <- delay (Milliseconds $ 1000.0 * da)
-  db <- liftEff $ playNote instruments noteSampleC
-  _ <- delay (Milliseconds $ 1000.0 * db)
-  de <- liftEff $ playNote instruments noteSampleE
-  _ <- delay (Milliseconds $ 1000.0 * de)
-  liftEff $ playNotes instruments (notesSample 0)
--}
+    melody = replicate 3 (notesSample 1)
+  playMelody instruments melody
+

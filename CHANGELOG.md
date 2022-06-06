@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 4.1.0 (2022-05-06)
+
+* Added playPhrase and playMelody 
+* There is now a dependency on datetime
+
 ### Version 4.0.0 (2022-04-07)
 
 * PureScript 0.15.0

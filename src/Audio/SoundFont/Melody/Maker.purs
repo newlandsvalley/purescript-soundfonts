@@ -33,14 +33,14 @@ type NoteMap = Map.Map Int PartialNote
 -- the state to thread through the computation
 -- which translates MIDI to a Web-Audio graph
 type TState =
-    { ticksPerBeat :: Int         -- taken from the MIDI header
-    , tempo :: Int                -- this will almost certainly be reset at the start of the MIDI file
-    , noteOffset :: Number        -- the overall time offset within the tune for the next note to be processed
-    , phraseOffset :: Number      -- the offset of the current phrase
-    , currentPhrase :: MidiPhrase -- the current phrase being built from completed notes
-    , currentNoteMap :: NoteMap   -- the set of notes currently being built
-    , phraseSize :: Number        -- the maximum size of each phrase
-    , melody :: Melody            -- the ever-increasing set of generated phrases
+  { ticksPerBeat :: Int -- taken from the MIDI header
+  , tempo :: Int -- this will almost certainly be reset at the start of the MIDI file
+  , noteOffset :: Number -- the overall time offset within the tune for the next note to be processed
+  , phraseOffset :: Number -- the offset of the current phrase
+  , currentPhrase :: MidiPhrase -- the current phrase being built from completed notes
+  , currentNoteMap :: NoteMap -- the set of notes currently being built
+  , phraseSize :: Number -- the maximum size of each phrase
+  , melody :: Melody -- the ever-increasing set of generated phrases
   }
 
 type TransformationState =
@@ -54,14 +54,14 @@ defaultPhraseSize = 0.6
 
 initialTState :: Int -> Number -> TState
 initialTState ticksPerBeat phraseSize =
-  { ticksPerBeat : ticksPerBeat
-  , tempo : 1000000
-  , noteOffset : 0.0
-  , phraseOffset : 0.0
-  , currentPhrase : []
-  , currentNoteMap : Map.empty
-  , phraseSize : phraseSize
-  , melody : []
+  { ticksPerBeat: ticksPerBeat
+  , tempo: 1000000
+  , noteOffset: 0.0
+  , phraseOffset: 0.0
+  , currentPhrase: []
+  , currentNoteMap: Map.empty
+  , phraseSize: phraseSize
+  , melody: []
   }
 
 initialTransformationState :: Int -> Number -> TransformationState
@@ -113,8 +113,13 @@ transformMessage m =
       accumulateTicks ticks
 
 -- Process a NoteOn or NoteOff MIDI message
-accumulateNote :: (Int -> Int -> Int -> Number -> TState -> TState)
-                    -> Int -> Int -> Int -> Int -> ControlState.State TransformationState Melody
+accumulateNote
+  :: (Int -> Int -> Int -> Number -> TState -> TState)
+  -> Int
+  -> Int
+  -> Int
+  -> Int
+  -> ControlState.State TransformationState Melody
 accumulateNote processNote ticks channel pitch velocity =
   do
     tpl <- ControlState.get
@@ -149,9 +154,10 @@ accumulateTempo ticks tempo =
       recording = snd tpl
       tstate = fst tpl
       offset = tstate.noteOffset + ticksToTime ticks tstate
-      tstate' = tstate { noteOffset = offset
-                       , tempo = tempo
-                       }
+      tstate' = tstate
+        { noteOffset = offset
+        , tempo = tempo
+        }
       tpl' = Tuple tstate' recording
     _ <- ControlState.put tpl'
     pure recording
@@ -166,9 +172,10 @@ addNoteOn channel pitch velocity offset tstate =
     currentNoteMap = Map.insert key partialNote tstate.currentNoteMap
     noteOffset = partialNote.timeOffset
   in
-    tstate { noteOffset = noteOffset
-           , currentNoteMap = currentNoteMap
-           }
+    tstate
+      { noteOffset = noteOffset
+      , currentNoteMap = currentNoteMap
+      }
 
 -- finalise the note once the NoteOff message arrives
 -- the note should exist in the map which would
@@ -184,11 +191,11 @@ finaliseNote channel pitch _velocity endOffset tstate =
       Just pnote ->
         let
           finalisedNote =
-            { channel : pnote.channel
-            , id : pnote.pitch
-            , timeOffset : pnote.timeOffset - tstate.phraseOffset
-            , duration : endOffset - pnote.timeOffset
-            , gain : pnote.gain
+            { channel: pnote.channel
+            , id: pnote.pitch
+            , timeOffset: pnote.timeOffset - tstate.phraseOffset
+            , duration: endOffset - pnote.timeOffset
+            , gain: pnote.gain
             }
           currentNoteMap = Map.delete key tstate.currentNoteMap
           currentPhrase = finalisedNote : tstate.currentPhrase
@@ -198,29 +205,32 @@ finaliseNote channel pitch _velocity endOffset tstate =
           -- and there aren't any other half-built notes left
           -- which would indicate a chord
           -- (i.e. the currentNoteMap must be empty)
-          if ((endOffset - tstate.phraseOffset) > tstate.phraseSize)
-                && (Map.isEmpty currentNoteMap) then
-            tstate { currentNoteMap = currentNoteMap
-                   , noteOffset = endOffset
-                   , phraseOffset = endOffset
-                   , currentPhrase = []
-                   , melody = (reverse currentPhrase) : tstate.melody
-                   }
+          if
+            ((endOffset - tstate.phraseOffset) > tstate.phraseSize)
+              && (Map.isEmpty currentNoteMap) then
+            tstate
+              { currentNoteMap = currentNoteMap
+              , noteOffset = endOffset
+              , phraseOffset = endOffset
+              , currentPhrase = []
+              , melody = (reverse currentPhrase) : tstate.melody
+              }
           else
-            tstate { currentNoteMap = currentNoteMap
-                   , noteOffset = endOffset
-                   , currentPhrase = currentPhrase
-                   }
+            tstate
+              { currentNoteMap = currentNoteMap
+              , noteOffset = endOffset
+              , currentPhrase = currentPhrase
+              }
       _ ->
         tstate { noteOffset = endOffset }
 
 -- we'll use a mashup of the channel and the pitch as a key
 noteKey :: Int -> Int -> Int
 noteKey channel pitch =
-   1000 * channel + pitch
+  1000 * channel + pitch
 
 -- convert ticks (at the governing tempo) to time (seconds)
-ticksToTime  :: Int -> TState -> Number
+ticksToTime :: Int -> TState -> Number
 ticksToTime ticks tstate =
   (toNumber ticks * toNumber tstate.tempo) / (toNumber tstate.ticksPerBeat * 1000000.0)
 
@@ -240,4 +250,4 @@ buildPartialNote channel pitch velocity timeOffset =
     gain =
       toNumber velocity / toNumber maxVolume
   in
-    { channel : channel, pitch : pitch, gain : gain, timeOffset : timeOffset }
+    { channel: channel, pitch: pitch, gain: gain, timeOffset: timeOffset }

@@ -13,6 +13,7 @@ You can edit this file as you like.
   , "b64"
   , "bifunctors"
   , "console"
+  , "datetime"
   , "effect"
   , "either"
   , "exceptions"

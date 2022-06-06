@@ -1,12 +1,11 @@
-module Audio.SoundFont.Gleitz (
-    RecordingFormat(..)
+module Audio.SoundFont.Gleitz
+  ( RecordingFormat(..)
   , SoundFontType(..)
   , gleitzUrl
   , gleitzNoteName
   , midiPitch
   , debugNoteName
   ) where
-
 
 import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
 import Data.String.Regex as Regex
@@ -35,21 +34,21 @@ data SoundFontType = Fluid3 | MusyngKite | FatBoy
 instance showSoundFontType :: Show SoundFontType where
   show Fluid3 = "FluidR3_GM"
   show MusyngKite = "MusyngKite"
-  show FatBoy= "FatBoy"
+  show FatBoy = "FatBoy"
 
 type Pitch = String
 
 -- | note sequences start at C with the normal intervals between the white notes
 semitones :: Map String Int
 semitones = fromFoldable
-    [ Tuple "C" 0
-    , Tuple "D" 2
-    , Tuple "E" 4
-    , Tuple "F" 5
-    , Tuple "G" 7
-    , Tuple "A" 9
-    , Tuple "B" 11
-    ]
+  [ Tuple "C" 0
+  , Tuple "D" 2
+  , Tuple "E" 4
+  , Tuple "F" 5
+  , Tuple "G" 7
+  , Tuple "A" 9
+  , Tuple "B" 11
+  ]
 
 gleitzBaseUrl :: String
 gleitzBaseUrl = "https://gleitz.github.io/midi-js-soundfonts/"
@@ -71,17 +70,20 @@ midiPitch1 s =
     Just matches ->
       let
         mpitch :: Maybe Int
-        mpitch = case index matches 1 of       -- first match group
-          Just (Just p) -> lookup p semitones  -- A-G
+        mpitch = case index matches 1 of -- first match group
+          Just (Just p) -> lookup p semitones -- A-G
           _ -> Nothing
+
         acc :: Int
-        acc = case index matches 2 of          -- second match group
-          Just (Just "b") -> (-1)              -- # or b
-          Just (Just "#") -> 1              -- # or b
+        acc = case index matches 2 of -- second match group
+          Just (Just "b") -> (-1) -- # or b
+          Just (Just "#") -> 1 -- # or b
           _ -> 0
+
         moctave :: Maybe Int
-        moctave =                              -- third match group
-          case index matches 3 of              -- octave number
+        moctave = -- third match group
+
+          case index matches 3 of -- octave number
             Just (Just octave) -> fromString octave
             _ -> Nothing
       in

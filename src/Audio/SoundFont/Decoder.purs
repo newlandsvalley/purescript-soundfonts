@@ -1,19 +1,19 @@
-module Audio.SoundFont.Decoder (
-    NoteMap
+module Audio.SoundFont.Decoder
+  ( NoteMap
   , midiJsToNoteMap
   , debugNoteNames
-  , debugNoteIds) where
+  , debugNoteIds
+  ) where
 
 import Prelude ((<>), ($), (+), map, show)
 import Data.Either (Either(..))
-import Data.Maybe(Maybe(..))
+import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Audio.SoundFont.Gleitz (debugNoteName, midiPitch)
 import Data.Argonaut.Core (Json, caseJsonObject, caseJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))
--- import Data.StrMap (StrMap, keys, toUnfoldable) as SM
 import Foreign.Object (Object)
 import Foreign.Object (keys, toUnfoldable) as SM
 import Data.Map (Map, fromFoldable, keys)
@@ -26,7 +26,6 @@ import Data.Binary.Base64 (decode) as B64
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Bifunctor (lmap)
 import Effect.Exception (Error, error)
-
 
 -- | This module transforms the MIDI.js from https://github.com/gleitz/midi-js-soundfonts
 -- | for a diven instrument, extracts the Json and parses it and also decodes the

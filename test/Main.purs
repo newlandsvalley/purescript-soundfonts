@@ -47,7 +47,7 @@ playableSpec :: Spec Unit
 playableSpec =
   describe "playable" do
     it "generate melody from midi" do
-      2 `shouldEqual` (length generateMelody)          -- 2 phrases
+      2 `shouldEqual` (length generateMelody) -- 2 phrases
       4 `shouldEqual` (length $ concat generateMelody) -- 4 notes overall
 
 decodeSpec :: Spec Unit
@@ -64,7 +64,7 @@ checkNoteMapSize noteMap =
   88 `shouldEqual` (size noteMap)
 
 main :: Effect Unit
-main = launchAff_ $ runSpec [ specReporter] do
+main = launchAff_ $ runSpec [ specReporter ] do
   describe "soundfonts" do
     gleitzSpec
     playableSpec
@@ -78,25 +78,25 @@ generateMelody =
 recording :: Midi.Recording
 recording =
   Midi.Recording
-    { header : header
-    , tracks : singleton track0
+    { header: header
+    , tracks: singleton track0
     }
   where
 
-    header :: Midi.Header
-    header =
-      Midi.Header
-        { formatType : 0
-        , trackCount : 1
-        , ticksPerBeat : 240
-        }
+  header :: Midi.Header
+  header =
+    Midi.Header
+      { formatType: 0
+      , trackCount: 1
+      , ticksPerBeat: 240
+      }
 
-    track0 :: Midi.Track
-    track0 =
-      Midi.Track $ (note 62) <> (note 64) <> (note 65) <> (note 67)
+  track0 :: Midi.Track
+  track0 =
+    Midi.Track $ (note 62) <> (note 64) <> (note 65) <> (note 67)
 
 note :: Int -> List Midi.Message
 note pitch =
-    (Midi.Message 0 $ Midi.NoteOn 0 pitch 100)
-  : (Midi.Message 60 $ Midi.NoteOff 0 pitch 100)
-  : Nil
+  (Midi.Message 0 $ Midi.NoteOn 0 pitch 100)
+    : (Midi.Message 60 $ Midi.NoteOff 0 pitch 100)
+    : Nil
