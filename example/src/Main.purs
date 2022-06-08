@@ -25,7 +25,7 @@ import Unsafe.Coerce (unsafeCoerce)
 
 note :: Int -> Int -> Number -> Number -> Number -> MidiNote
 note channel id timeOffset duration gain =
-  { channel : channel, id : id, timeOffset : timeOffset, duration : duration, gain : gain }
+  { channel, id, timeOffset, duration, gain }
 
 noteSampleA :: MidiNote
 noteSampleA = note 0 57 0.0 0.5 1.0
