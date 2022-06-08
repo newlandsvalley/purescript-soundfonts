@@ -11,6 +11,8 @@ Also included is conversion to a __Melody__ type which is suitable for use in a 
 
 The conversion of a Gleitzman note name (e.g. Ab4) to a MIDI pitch uses middle C = C4.
 
+For more information, see the [guide](https://github.com/newlandsvalley/purescript-soundfonts/blob/master/docs/GUIDE.md).
+
 ### Acknowledgements
 
 The design in very heavily influenced by danigb's JavaScript soundfont project: [soundfont-player](https://github.com/danigb/soundfont-player) and in fact initial versions of this library simply wrapped his. However, this version minimises the amount of native JavaScript which is still necessary in order to wrap Web-Audio functions.  
