@@ -1,4 +1,4 @@
-# Purescript SoundFonts
+# Purescript SoundFonts Guide
 
 The idea of ```soundfonts``` is to allow music to be played in the browser in the most basic way possble.  It allows you to play a note of a specified pitch and volume for a given duration on a particular MIDI instrument.  From this simple starting point, more complicated melodies may be built up. 
 
@@ -6,7 +6,7 @@ The [MIDI 1.0 Specification](https://www.midi.org/specifications/midi1-specifica
 
 When you use ```soundfonts``` you start by downloading the data for your chosen instruments, which may be from the original Gleitzman site or a different one if you prefer to host it yourself.  This data is then converted into a set of web-audio [AudioBuffers](https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer) - one for each note.  This buffer set is then associated with the instrument name (enumerated in [purescript-midi](https://github.com/newlandsvalley/purescript-midi)) and as a result an ```Instrument``` type is produced.  These Instruments are saved in an array,
 
-```soundfonts``` adopts the MIDI definition of a note's [pitch](https://newt.phys.unsw.edu.au/jw/notes.html) and volume (a number between 0 and 1) however it differs from MIDI in that rather than using a ```NoteOn``` followed by a ```NoteOff`` message, it uses a duration (in seconds):
+```soundfonts``` adopts the MIDI definition of a note's [pitch](https://newt.phys.unsw.edu.au/jw/notes.html) and volume (a number between 0 and 1) however it differs from MIDI in that rather than using a ```NoteOn``` followed by a ```NoteOff``` message, it uses a duration (in seconds):
 
 ```purs 
 type MidiNote =
@@ -133,7 +133,7 @@ playNotesExample instruments = do
 
 ## Playing Note Sequences
 
-If you want to play a sequence of notes, then you have to start each note at the correct time offset.  For example, to play the notes of the chords above, but in a legato sequence, you can use this:
+If you want to play a sequence of notes, then you have to start each note at the correct time offset.  For example, to play the notes of the chord above, but in a legato sequence, you can use this:
 
 ```purs
 legato :: Array MidiNote 
@@ -144,7 +144,7 @@ legato =
   ]
 ```
 
-Notice that each succeding note starts at the accumulated time offset of the note sequence that hase preceded it.  You again supply this array to ```playNotes```:
+Notice that each succeding note starts at the accumulated time offset of the note sequence that has preceded it.  You again supply this array to ```playNotes```:
 
 ```purs
 playNotesExample :: Array Instrument -> Aff Unit
