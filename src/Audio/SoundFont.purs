@@ -1,5 +1,6 @@
 module Audio.SoundFont
-  ( AudioBuffer
+  ( module Exports
+  , AudioBuffer
   , Instrument
   , InstrumentChannels
   , MidiNote
@@ -10,8 +11,11 @@ module Audio.SoundFont
   , logLoadResource
   , loadInstrument
   , loadInstruments
+  , loadInstrumentUsingProvider
+  , loadInstrumentsUsingProvider
   , loadRemoteSoundFonts
   , loadPianoSoundFont
+  , midiNote
   , playNote
   , playNotes
   , instrumentChannels
@@ -20,7 +24,8 @@ module Audio.SoundFont
 import Affjax.Web (defaultRequest, request)
 import Affjax.ResponseFormat as ResponseFormat
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
-import Audio.SoundFont.Gleitz (RecordingFormat(..), SoundFontType(..), gleitzUrl)
+import Audio.SoundFont.Gleitz (RecordingFormat(..), gleitzUrl)
+import Audio.SoundFont.Gleitz (SoundFontType(..)) as Exports
 import Control.Parallel (parallel, sequential)
 import Data.Array (index, last, mapWithIndex)
 import Data.ArrayBuffer.Types (Uint8Array)
@@ -86,7 +91,7 @@ foreign import isWebAudioEnabled
 foreign import setNoteRing
   :: Number -> Effect Unit
 
--- | load a bunch of soundfonts from the Gleitzmann server
+-- | load a bunch of soundfonts from the Gleitzmann server using the MusyngKite provider
 loadRemoteSoundFonts
   :: Array InstrumentName
   -> Aff (Array Instrument)
@@ -94,22 +99,36 @@ loadRemoteSoundFonts =
   loadInstruments Nothing
 
 -- | load the piano soundfont from a relative directory on the local server
+-- | using the MusyngKite provider
 loadPianoSoundFont
   :: String
   -> Aff Instrument
 loadPianoSoundFont localDir =
   loadInstrument (Just localDir) AcousticGrandPiano
 
--- | load a single instrument SoundFont
--- | The options are to load the soundfont from:
--- |   Benjamin Gleitzman's server (default)
--- |   A directory from the local server if this is supplied
 
+-- | load a single instrument SoundFont using the ```MusyngKite``` provider
+-- | The options are to load the soundfont from:
+-- |   Benjamin Gleitzman's server (default of Nothing)
+-- |   A directory from the local server if this is supplied
 loadInstrument
   :: Maybe String
   -> InstrumentName
   -> Aff Instrument
-loadInstrument maybeLocalDir instrumentName = do
+loadInstrument maybeLocalDir instrumentName = 
+  loadInstrumentUsingProvider maybeLocalDir Exports.MusyngKite instrumentName 
+
+-- | load a single instrument SoundFont
+-- | The options are to load the soundfont from:
+-- |   Benjamin Gleitzman's server (default: Nothing) or
+-- |   A directory from the local server if this is supplied
+-- | and to use your choice of SoundFont provider
+loadInstrumentUsingProvider
+  :: Maybe String
+  -> Exports.SoundFontType
+  -> InstrumentName
+  -> Aff Instrument
+loadInstrumentUsingProvider maybeLocalDir provider instrumentName  = do
   recordingFormat <- liftEffect prefferedRecordingFormat
   let
     url =
@@ -117,7 +136,7 @@ loadInstrument maybeLocalDir instrumentName = do
         Just localDir ->
           localUrl instrumentName localDir recordingFormat
         _ ->
-          gleitzUrl instrumentName MusyngKite recordingFormat
+          gleitzUrl instrumentName provider recordingFormat
   res <- request $ defaultRequest
     { url = url, method = Left GET, responseFormat = ResponseFormat.string }
 
@@ -132,15 +151,34 @@ loadInstrument maybeLocalDir instrumentName = do
       font <- traverse decodeAudioBuffer noteMap
       pure (Tuple instrumentName font)
 
--- | load a bunch of instrument SoundFonts (in parallel)
+-- | load a bunch of instrument SoundFonts (in parallel) using the MusyngKite provider. 
 -- | again with options to load either locally or remotely
 -- | from Benjamin Gleitzman's server
 loadInstruments
   :: Maybe String
   -> Array InstrumentName
+  -> Aff (Array Instrument)   
+loadInstruments maybeLocalDir instrumentNames = 
+  loadInstrumentsUsingProvider maybeLocalDir Exports.MusyngKite instrumentNames
+
+-- | load a bunch of instrument SoundFonts (in parallel)
+-- | with options to load either locally or remotely
+-- | from Benjamin Gleitzman's server
+-- | and to use your choice of SoundFont provider
+loadInstrumentsUsingProvider
+  :: Maybe String
+  -> Exports.SoundFontType
+  -> Array InstrumentName
   -> Aff (Array Instrument)
-loadInstruments maybeLocalDir instrumentNames =
-  sequential $ traverse (\name -> parallel (loadInstrument maybeLocalDir name)) instrumentNames
+loadInstrumentsUsingProvider maybeLocalDir provider instrumentNames =
+  sequential $ traverse 
+    (\name -> parallel (loadInstrumentUsingProvider maybeLocalDir provider name)) instrumentNames
+
+
+-- | Construct a MidiNote
+midiNote :: Int -> Int -> Number -> Number -> Number -> MidiNote
+midiNote channel id timeOffset duration gain =
+  { channel, id, timeOffset, duration, gain }
 
 foreign import decodeAudioBufferImpl
   :: Uint8Array -> EffectFnAff AudioBuffer
@@ -204,7 +242,7 @@ logLoadResource
   -> Effect (Fiber Unit)
 logLoadResource instrument =
   let
-    url = gleitzUrl instrument MusyngKite OGG
+    url = gleitzUrl instrument Exports.MusyngKite OGG
   in
     launchAff $ do
       res <- request $ defaultRequest

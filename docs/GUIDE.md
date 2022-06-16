@@ -58,7 +58,7 @@ import Effect.Console (log)
 import Data.Time.Duration (Milliseconds(..))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
-import Audio.SoundFont (Instrument, MidiNote, loadRemoteSoundFonts, playNote, playNotes)
+import Audio.SoundFont (Instrument, MidiNote, loadRemoteSoundFonts, midiNote, playNote, playNotes)
 import Data.Midi.Instrument (InstrumentName(..))
 import Web.DOM.ParentNode (querySelector)
 import Web.Event.EventTarget (EventTarget, addEventListener, eventListener)
@@ -91,12 +91,8 @@ playNotesExample instruments = do
   duration_ <- liftEffect $ playNote instruments noteSampleA
   pure unit
 
-note :: Int -> Int -> Number -> Number -> Number -> MidiNote
-note channel id timeOffset duration gain =
-  { channel, id, timeOffset, duration, gain }
-
 noteSampleA :: MidiNote
-noteSampleA = note 0 57 0.0 1.0 1.0
+noteSampleA = midiNote 0 57 0.0 1.0 1.0
 ```
 
 ## Playing Chords
@@ -105,13 +101,13 @@ To play a chord, you need to supply an array of ```MidiNote``` at the appropriat
 
 ```purs
 noteSampleA :: MidiNote
-noteSampleA = note 0 57 0.0 1.0 1.0
+noteSampleA = midiNote 0 57 0.0 1.0 1.0
 
 noteSampleCAt :: Number -> MidiNote
-noteSampleCAt offset = note 0 60 offset 1.0 1.0
+noteSampleCAt offset = midiNote 0 60 offset 1.0 1.0
 
 noteSampleEAt :: Number -> MidiNote
-noteSampleEAt offset = note 0 64 offset 1.0 1.0
+noteSampleEAt offset = midiNote 0 64 offset 1.0 1.0
 
 chord :: Array MidiNote 
 chord = 

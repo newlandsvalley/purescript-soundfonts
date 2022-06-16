@@ -12,6 +12,7 @@ import Data.Unfoldable (replicate)
 import Audio.SoundFont (Instrument
   , MidiNote
   , loadRemoteSoundFonts
+  , midiNote
   , playNote
   , playNotes)
 import Audio.SoundFont.Melody (playMelody)
@@ -23,27 +24,23 @@ import Web.HTML.HTMLDocument (toParentNode)
 import Web.HTML.Window (document)
 import Unsafe.Coerce (unsafeCoerce)
 
-note :: Int -> Int -> Number -> Number -> Number -> MidiNote
-note channel id timeOffset duration gain =
-  { channel, id, timeOffset, duration, gain }
-
 noteSampleA :: MidiNote
-noteSampleA = note 0 57 0.0 0.5 1.0
+noteSampleA = midiNote 0 57 0.0 0.5 1.0
 
 noteSampleC :: MidiNote
-noteSampleC = note 0 60 0.0 0.5 1.0
+noteSampleC = midiNote 0 60 0.0 0.5 1.0
 
 noteSampleE :: MidiNote
-noteSampleE = note 0 64 0.0 0.5 1.0
+noteSampleE = midiNote 0 64 0.0 0.5 1.0
 
 notesSample :: Int -> Array MidiNote
 notesSample channel =
- [ note channel 60 1.0 0.5 1.0
- , note channel 62 1.5 0.5 1.0
- , note channel 64 2.0 0.5 1.0
- , note channel 65 2.5 0.5 1.0
- , note channel 67 3.0 1.5 1.0
- , note channel 71 3.0 1.5 1.0
+ [ midiNote channel 60 1.0 0.5 1.0
+ , midiNote channel 62 1.5 0.5 1.0
+ , midiNote channel 64 2.0 0.5 1.0
+ , midiNote channel 65 2.5 0.5 1.0
+ , midiNote channel 67 3.0 1.5 1.0
+ , midiNote channel 71 3.0 1.5 1.0
  ]
 
 main :: Effect Unit
