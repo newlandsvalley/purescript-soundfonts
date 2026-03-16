@@ -1,33 +1,33 @@
 package:
   name: soundfonts
   dependencies:
-  - aff
-  - affjax
-  - affjax-web
-  - argonaut-core
-  - arraybuffer-types
-  - arrays
-  - b64
-  - bifunctors
-  - console
-  - datetime
-  - effect
-  - either
-  - exceptions
-  - foldable-traversable
-  - foreign-object
-  - http-methods
-  - integers
-  - lists
-  - maybe
-  - midi
-  - ordered-collections
-  - parallel
-  - partial
-  - prelude
-  - strings
-  - transformers
-  - tuples
+    - aff
+    - affjax
+    - affjax-web
+    - argonaut-core
+    - arraybuffer-types
+    - arrays
+    - b64
+    - bifunctors
+    - console
+    - datetime
+    - effect
+    - either
+    - exceptions
+    - foldable-traversable
+    - foreign-object
+    - http-methods
+    - integers
+    - lists
+    - maybe
+    - midi
+    - ordered-collections
+    - parallel
+    - partial
+    - prelude
+    - strings
+    - transformers
+    - tuples
   test:
     main: Test.Main
     dependencies:
@@ -36,7 +36,27 @@ package:
       - spec
       - spec-node
 workspace:
-  extra_packages: {}
+  extra_packages: 
+    midi:
+      dependencies:
+        - arrays
+        - bifunctors
+        - control
+        - effect
+        - either
+        - foldable-traversable
+        - integers
+        - lists
+        - maybe
+        - ordered-collections
+        - prelude
+        - signal
+        - string-parsers
+        - strings
+        - tuples
+        - unfoldable
+      git: https://github.com/newlandsvalley/purescript-midi.git
+      ref: 4ac46fc25c4a73ab0c6c879fdb882fb4cb23cef6
   package_set:
     registry: 73.3.0
     

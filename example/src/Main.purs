@@ -16,6 +16,7 @@ import Audio.SoundFont (Instrument
   , playNote
   , playNotes)
 import Audio.SoundFont.Melody (playMelody)
+import Data.Midi (Channel(..), MidiPitch(..))
 import Data.Midi.Instrument (InstrumentName(..))
 import Web.DOM.ParentNode (querySelector)
 import Web.Event.EventTarget (EventTarget, addEventListener, eventListener)
@@ -25,22 +26,22 @@ import Web.HTML.Window (document)
 import Unsafe.Coerce (unsafeCoerce)
 
 noteSampleA :: MidiNote
-noteSampleA = midiNote 0 57 0.0 0.5 1.0
+noteSampleA = midiNote (Channel 0) (MidiPitch 57) 0.0 0.5 1.0
 
 noteSampleC :: MidiNote
-noteSampleC = midiNote 0 60 0.0 0.5 1.0
+noteSampleC = midiNote (Channel 0) (MidiPitch 60) 0.0 0.5 1.0
 
 noteSampleE :: MidiNote
-noteSampleE = midiNote 0 64 0.0 0.5 1.0
+noteSampleE = midiNote (Channel 0) (MidiPitch 64) 0.0 0.5 1.0
 
-notesSample :: Int -> Array MidiNote
+notesSample :: Channel -> Array MidiNote
 notesSample channel =
- [ midiNote channel 60 1.0 0.5 1.0
- , midiNote channel 62 1.5 0.5 1.0
- , midiNote channel 64 2.0 0.5 1.0
- , midiNote channel 65 2.5 0.5 1.0
- , midiNote channel 67 3.0 1.5 1.0
- , midiNote channel 71 3.0 1.5 1.0
+ [ midiNote channel (MidiPitch 60) 1.0 0.5 1.0
+ , midiNote channel (MidiPitch 62) 1.5 0.5 1.0
+ , midiNote channel (MidiPitch 64) 2.0 0.5 1.0
+ , midiNote channel (MidiPitch 65) 2.5 0.5 1.0
+ , midiNote channel (MidiPitch 67) 3.0 1.5 1.0
+ , midiNote channel (MidiPitch 71) 3.0 1.5 1.0
  ]
 
 main :: Effect Unit
@@ -71,13 +72,13 @@ playNotesExample instruments = do
   _ <- delay (Milliseconds $ 1000.0 * db)
   de <- liftEffect $ playNote instruments noteSampleE
   _ <- delay (Milliseconds $ 1000.0 * de)
-  df <- liftEffect $ playNotes instruments (notesSample 2)
+  df <- liftEffect $ playNotes instruments (notesSample (Channel 2))
   delay (Milliseconds $ 1000.0 * df)
 
 -- playMelody example (on the piano)
 playMelodyExample :: Array Instrument -> Aff Unit
 playMelodyExample instruments = do
   let
-    melody = replicate 3 (notesSample 1)
+    melody = replicate 3 (notesSample (Channel 1))
   playMelody instruments melody
 

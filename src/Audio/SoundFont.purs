@@ -26,7 +26,6 @@ import Affjax.ResponseFormat as ResponseFormat
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 import Audio.SoundFont.Gleitz (RecordingFormat(..), gleitzUrl)
 import Audio.SoundFont.Gleitz (SoundFontType(..)) as Exports
-import Audio.SoundFont.TemporaryType (MidiPitch)
 import Control.Parallel (parallel, sequential)
 import Data.Array (index, last, mapWithIndex)
 import Data.ArrayBuffer.Types (Uint8Array)
@@ -35,8 +34,9 @@ import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
 import Data.Map (Map, lookup, empty, fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Midi (Channel)
+import Data.Midi (Channel(..), MidiPitch)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
+import Data.Newtype (unwrap)
 import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
@@ -206,8 +206,8 @@ foreign import playFontNote
 -- | then treat the note as a Rest, with its stated duration
 playNote :: Array Instrument -> MidiNote -> Effect Number
 playNote instruments note =
-  let
-    maybeInstrument = index instruments note.channel
+  let 
+    maybeInstrument = index instruments (unwrap note.channel)
   in
     case maybeInstrument of
       Just (Tuple _ soundfont) ->
@@ -232,8 +232,8 @@ playNotes instruments notes =
 instrumentChannels :: Array Instrument -> InstrumentChannels
 instrumentChannels is =
   let
-    f :: Int -> Instrument -> Tuple InstrumentName Int
-    f i = rmap (\_ -> i)
+    f :: Int -> Instrument -> Tuple InstrumentName Channel
+    f i = rmap (\_ -> (Channel i))
   in
     fromFoldable $ mapWithIndex f is
 

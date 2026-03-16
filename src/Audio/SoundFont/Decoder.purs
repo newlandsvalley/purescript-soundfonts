@@ -10,8 +10,8 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
+import Data.Midi (MidiPitch)
 import Audio.SoundFont.Gleitz (debugNoteName, midiPitch)
-import Audio.SoundFont.TemporaryType (MidiPitch)
 import Data.Argonaut.Core (Json, caseJsonObject, caseJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))
@@ -48,7 +48,7 @@ rebaseNoteMap :: NoteMap0 -> NoteMap
 rebaseNoteMap nm =
   let
     -- seem to need the type signature to help the type checker
-    intermediate :: Array (Tuple Int Uint8Array)
+    intermediate :: Array (Tuple MidiPitch Uint8Array)
     intermediate = map (lmap midiPitch) $ SM.toUnfoldable nm
   in
     fromFoldable intermediate
@@ -116,7 +116,7 @@ debugNoteNames nm =
 debugNoteIds :: NoteMap -> String
 debugNoteIds nm =
   let
-    keyList :: List Int
+    keyList :: List MidiPitch
     keyList = Set.toUnfoldable (keys nm)
   in
     intercalate "," (map show keyList)

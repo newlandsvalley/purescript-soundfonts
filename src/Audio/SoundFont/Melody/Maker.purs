@@ -4,9 +4,9 @@ module Audio.SoundFont.Melody.Maker (toMelody, toMelody_) where
 
 import Control.Monad.State as ControlState
 import Data.Midi (Event(..), Header(..), Message(..), Recording(..), Track(..)) as Midi
-import Data.Midi (Channel, Velocity, Ticks)
+import Data.Midi (Channel(..), MidiPitch(..), Velocity, Ticks)
 import Audio.SoundFont.Melody (Melody, MidiPhrase)
-import Audio.SoundFont.TemporaryType (MidiPitch)
+import Data.Newtype (unwrap)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Array ((:), reverse)
 import Data.List (List(..), head)
@@ -109,7 +109,7 @@ transformMessage m =
     Midi.Message ticks (Midi.Tempo tempo) ->
       accumulateTempo ticks tempo
     Midi.Message ticks (Midi.NoteOn channel pitch velocity) ->
-      if (pitch > 0) then
+      if ( (unwrap pitch) > 0) then
         accumulateNote addNoteOn ticks channel pitch velocity
       else
         accumulateNote finaliseNote ticks channel pitch velocity
@@ -232,7 +232,7 @@ finaliseNote channel pitch _velocity endOffset tstate =
 
 -- we'll use a mashup of the channel and the pitch as a key
 noteKey :: Channel -> MidiPitch -> NoteKey
-noteKey channel pitch =
+noteKey (Channel channel) (MidiPitch pitch) =
   1000 * channel + pitch
 
 -- convert ticks (at the governing tempo) to time (seconds)

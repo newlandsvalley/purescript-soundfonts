@@ -18,6 +18,7 @@ import Data.List (List(..), (:), singleton)
 import Data.Map (empty)
 import Data.Map.Internal (size)
 import Data.Midi as Midi
+import Data.Midi (Channel(..), MidiPitch(..))
 import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 import Effect (Effect)
 import Effect.Exception (Error)
@@ -40,15 +41,15 @@ gleitzSpec :: Spec Unit
 gleitzSpec =
   describe "gleitz" do
     it "knows midi pitch C4" do
-      60 `shouldEqual` (midiPitch "C4")
+      (MidiPitch 60) `shouldEqual` (midiPitch "C4")
     it "knows midi pitch Bb1" do
-      34 `shouldEqual` (midiPitch "Bb1")
+      (MidiPitch 34) `shouldEqual` (midiPitch "Bb1")
     it "knows midi pitch A#1" do
-      34 `shouldEqual` (midiPitch "A#1")
+      (MidiPitch 34) `shouldEqual` (midiPitch "A#1")
     it "knows midi pitch A4" do
-      69 `shouldEqual` (midiPitch "A4")
+      (MidiPitch 69) `shouldEqual` (midiPitch "A4")
     it "knows midi pitch C8" do
-      108 `shouldEqual` (midiPitch "C8")
+      (MidiPitch 108) `shouldEqual` (midiPitch "C8")
 
 playableSpec :: Spec Unit
 playableSpec =
@@ -98,6 +99,6 @@ recording =
 
 note :: Int -> List Midi.Message
 note pitch =
-  (Midi.Message 0 $ Midi.NoteOn 0 pitch 100)
-    : (Midi.Message 60 $ Midi.NoteOff 0 pitch 100)
+  (Midi.Message 0 $ Midi.NoteOn (Channel 0) (MidiPitch pitch) 100)
+    : (Midi.Message 60 $ Midi.NoteOff (Channel 0) (MidiPitch pitch) 100)
     : Nil

@@ -8,7 +8,6 @@ module Audio.SoundFont.Gleitz
   ) where
 
 import Prelude (class Show, (<>), ($), (+), (*), map, negate, show)
-import Audio.SoundFont.TemporaryType (MidiPitch)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags (noFlags)
 import Data.Either (Either(..))
@@ -17,6 +16,7 @@ import Data.Int (fromString)
 import Data.Array.NonEmpty (NonEmptyArray, index)
 import Data.Tuple (Tuple(..))
 import Data.Map (Map, fromFoldable, lookup)
+import Data.Midi (MidiPitch(..))
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Partial.Unsafe (unsafePartial)
 
@@ -61,7 +61,7 @@ gleitzUrl instrument fontType format =
 -- at the moment - just throw away the error
 midiPitch :: String -> MidiPitch
 midiPitch s =
-  fromMaybe 0 (midiPitch1 s)
+  fromMaybe (MidiPitch 0) (midiPitch1 s)
 
 -- | convert a Gleitz note name to a MIDI pitch
 midiPitch1 :: String -> Maybe MidiPitch
@@ -98,7 +98,7 @@ midiPitch1 s =
 -- | The MIDI standard does not standardise on a particular middle C
 buildMidiPitch :: Int -> Int -> Int -> MidiPitch
 buildMidiPitch octave pitch accidental =
-  (12 * octave) + pitch + accidental + 12
+  MidiPitch $ (12 * octave) + pitch + accidental + 12
 
 {-
 lookupPitch :: Pitch -> Maybe Int
