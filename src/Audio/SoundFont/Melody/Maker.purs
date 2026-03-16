@@ -3,8 +3,10 @@ module Audio.SoundFont.Melody.Maker (toMelody, toMelody_) where
 -- | Convert a MIDI Recording to a playable melody.
 
 import Control.Monad.State as ControlState
-import Data.Midi as Midi
+import Data.Midi (Event(..), Header(..), Message(..), Recording(..), Track(..)) as Midi
+import Data.Midi (Channel, Velocity, Ticks)
 import Audio.SoundFont.Melody (Melody, MidiPhrase)
+import Audio.SoundFont.TemporaryType (MidiPitch)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Array ((:), reverse)
 import Data.List (List(..), head)
@@ -18,17 +20,21 @@ import Prelude (bind, pure, ($), (*), (+), (-), (/), (>), (&&))
 -- but we instead group sequences of MIDI messages into
 -- (relatively short) phrases and re-render after each phrase
 
+
+-- a NoteKey is simply the Integer key to the NoteMap table constructed from the channel and the pitch
+type NoteKey = Int
+
 -- a PartialNote comes from MIDI NoteOn
 -- and is incomplete because it has no end time offset/duration
 type PartialNote =
-  { channel :: Int
-  , pitch :: Int
+  { channel :: Channel
+  , pitch :: MidiPitch
   , gain :: Number
   , timeOffset :: Number
   }
 
 -- lookup allowing us to match NoteOn and NoteOff events
-type NoteMap = Map.Map Int PartialNote
+type NoteMap = Map.Map NoteKey PartialNote
 
 -- the state to thread through the computation
 -- which translates MIDI to a Web-Audio graph
@@ -114,11 +120,11 @@ transformMessage m =
 
 -- Process a NoteOn or NoteOff MIDI message
 accumulateNote
-  :: (Int -> Int -> Int -> Number -> TState -> TState)
-  -> Int
-  -> Int
-  -> Int
-  -> Int
+  :: (Channel -> MidiPitch -> Velocity -> Number -> TState -> TState)
+  -> Ticks
+  -> Channel
+  -> MidiPitch
+  -> Velocity
   -> ControlState.State TransformationState Melody
 accumulateNote processNote ticks channel pitch velocity =
   do
@@ -132,7 +138,7 @@ accumulateNote processNote ticks channel pitch velocity =
     _ <- ControlState.put tpl'
     pure recording
 
-accumulateTicks :: Int -> ControlState.State TransformationState Melody
+accumulateTicks :: Ticks -> ControlState.State TransformationState Melody
 accumulateTicks ticks =
   do
     tpl <- ControlState.get
@@ -146,7 +152,7 @@ accumulateTicks ticks =
     _ <- ControlState.put tpl'
     pure recording
 
-accumulateTempo :: Int -> Int -> ControlState.State TransformationState Melody
+accumulateTempo :: Ticks -> Int -> ControlState.State TransformationState Melody
 accumulateTempo ticks tempo =
   do
     tpl <- ControlState.get
@@ -164,7 +170,7 @@ accumulateTempo ticks tempo =
 
 -- add a note to state. The note is half-built
 -- we still need the duration from the matching NoteOff
-addNoteOn :: Int -> Int -> Int -> Number -> TState -> TState
+addNoteOn :: Channel -> MidiPitch -> Velocity -> Number -> TState -> TState
 addNoteOn channel pitch velocity offset tstate =
   let
     partialNote = buildPartialNote channel pitch velocity offset
@@ -181,7 +187,7 @@ addNoteOn channel pitch velocity offset tstate =
 -- the note should exist in the map which would
 -- be established by a previous NoteOn but needs a
 -- finalising duration
-finaliseNote :: Int -> Int -> Int -> Number -> TState -> TState
+finaliseNote :: Channel -> MidiPitch -> Velocity -> Number -> TState -> TState
 finaliseNote channel pitch _velocity endOffset tstate =
   let
     key = noteKey channel pitch
@@ -225,12 +231,12 @@ finaliseNote channel pitch _velocity endOffset tstate =
         tstate { noteOffset = endOffset }
 
 -- we'll use a mashup of the channel and the pitch as a key
-noteKey :: Int -> Int -> Int
+noteKey :: Channel -> MidiPitch -> NoteKey
 noteKey channel pitch =
   1000 * channel + pitch
 
 -- convert ticks (at the governing tempo) to time (seconds)
-ticksToTime :: Int -> TState -> Number
+ticksToTime :: Ticks -> TState -> Number
 ticksToTime ticks tstate =
   (toNumber ticks * toNumber tstate.tempo) / (toNumber tstate.ticksPerBeat * 1000000.0)
 
@@ -243,7 +249,7 @@ retrieveMelody =
       melody = reverse $ (reverse tstate.currentPhrase) : tstate.melody
     pure melody
 
-buildPartialNote :: Int -> Int -> Int -> Number -> PartialNote
+buildPartialNote :: Channel -> MidiPitch -> Velocity -> Number -> PartialNote
 buildPartialNote channel pitch velocity timeOffset =
   let
     maxVolume = 127

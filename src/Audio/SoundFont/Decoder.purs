@@ -11,6 +11,7 @@ import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), drop, take, indexOf, lastIndexOf, length)
 import Data.Midi.Instrument (InstrumentName, gleitzmanName)
 import Audio.SoundFont.Gleitz (debugNoteName, midiPitch)
+import Audio.SoundFont.TemporaryType (MidiPitch)
 import Data.Argonaut.Core (Json, caseJsonObject, caseJsonString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Tuple (Tuple(..))
@@ -38,7 +39,7 @@ import Effect.Exception (Error, error)
 type NoteMap0 = Object Uint8Array
 
 -- | the final note map indexed by the MIDI pitch number
-type NoteMap = Map Int Uint8Array
+type NoteMap = Map MidiPitch Uint8Array
 
 -- | convert a Note Map indexed by Strings representing the notes
 -- | to one indexed by Ints (the MIDI Pitch of that note String)

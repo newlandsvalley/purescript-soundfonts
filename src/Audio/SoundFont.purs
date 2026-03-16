@@ -26,6 +26,7 @@ import Affjax.ResponseFormat as ResponseFormat
 import Audio.SoundFont.Decoder (midiJsToNoteMap, debugNoteIds)
 import Audio.SoundFont.Gleitz (RecordingFormat(..), gleitzUrl)
 import Audio.SoundFont.Gleitz (SoundFontType(..)) as Exports
+import Audio.SoundFont.TemporaryType (MidiPitch)
 import Control.Parallel (parallel, sequential)
 import Data.Array (index, last, mapWithIndex)
 import Data.ArrayBuffer.Types (Uint8Array)
@@ -34,6 +35,7 @@ import Data.Either (Either(..), either)
 import Data.HTTP.Method (Method(..))
 import Data.Map (Map, lookup, empty, fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Midi (Channel)
 import Data.Midi.Instrument (InstrumentName(..), gleitzmanName)
 import Data.Traversable (traverse, sequenceDefault)
 import Data.Tuple (Tuple(..))
@@ -49,20 +51,24 @@ import Prelude
 -- | the Audio Buffer for a single note
 foreign import data AudioBuffer :: Type
 
+
+
 -- | the instrument soundfont
 -- | a mapping between MIDI pitch and the note's AudioBuffer
-type SoundFont = Map Int AudioBuffer
+type SoundFont = Map MidiPitch AudioBuffer
 
 -- | an instrument name attached to its SoundFont
 type Instrument = Tuple InstrumentName SoundFont
 
 -- | the mapping of instrument names to MIDI channels
-type InstrumentChannels = Map InstrumentName Int
+type InstrumentChannels = Map InstrumentName Channel
+
+
 
 -- | A Midi Note
 type MidiNote =
-  { channel :: Int -- the MIDI channel
-  , id :: Int -- the MIDI pitch number
+  { channel :: Channel -- the MIDI channel
+  , id :: MidiPitch -- the MIDI pitch number
   , timeOffset :: Number -- the time delay in seconds before the note is played
   , duration :: Number -- the duration of the note
   , gain :: Number -- the volume (between 0 and 1)
@@ -176,7 +182,7 @@ loadInstrumentsUsingProvider maybeLocalDir provider instrumentNames =
 
 
 -- | Construct a MidiNote
-midiNote :: Int -> Int -> Number -> Number -> Number -> MidiNote
+midiNote :: Channel -> MidiPitch -> Number -> Number -> Number -> MidiNote
 midiNote channel id timeOffset duration gain =
   { channel, id, timeOffset, duration, gain }
 
