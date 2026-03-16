@@ -20,14 +20,21 @@ import Data.Map.Internal (size)
 import Data.Midi as Midi
 import Data.Midi.Instrument (InstrumentName(AcousticGrandPiano))
 import Effect (Effect)
-import Effect.Aff (launchAff_)
 import Effect.Exception (Error)
 import Node.Encoding (Encoding(UTF8))
 import Node.FS.Aff (readTextFile)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (fail, shouldEqual)
 import Test.Spec.Reporter (specReporter)
-import Test.Spec.Runner (runSpec)
+import Test.Spec.Runner.Node (runSpecAndExitProcess)
+
+
+main :: Effect Unit
+main = runSpecAndExitProcess [ specReporter ] do
+  describe "soundfonts" do
+    gleitzSpec
+    playableSpec
+    decodeSpec
 
 gleitzSpec :: Spec Unit
 gleitzSpec =
@@ -63,12 +70,6 @@ checkNoteMapSize :: forall m. MonadThrow Error m => NoteMap -> m Unit
 checkNoteMapSize noteMap =
   88 `shouldEqual` (size noteMap)
 
-main :: Effect Unit
-main = launchAff_ $ runSpec [ specReporter ] do
-  describe "soundfonts" do
-    gleitzSpec
-    playableSpec
-    decodeSpec
 
 generateMelody :: Melody
 generateMelody =

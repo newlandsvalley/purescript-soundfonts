@@ -28,7 +28,7 @@ import Data.Bifunctor (lmap)
 import Effect.Exception (Error, error)
 
 -- | This module transforms the MIDI.js from https://github.com/gleitz/midi-js-soundfonts
--- | for a diven instrument, extracts the Json and parses it and also decodes the
+-- | for a given instrument, extracts the Json and parses it and also decodes the
 -- | Base64 representation  of each note to an unsigned Int8 array.
 -- | It then returns a map indexed by MIDI note number for each note in the instrument font.
 -- | Note that this note definition is not yet ready to play - it must still be decoded

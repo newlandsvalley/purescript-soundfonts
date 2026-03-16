@@ -1,0 +1,10 @@
+package:
+  name: example
+  dependencies:
+    - newtype
+    - soundfonts
+    - unfoldable
+    - unsafe-coerce
+    - web-dom
+    - web-events
+    - web-html

@@ -1,0 +1,42 @@
+package:
+  name: soundfonts
+  dependencies:
+  - aff
+  - affjax
+  - affjax-web
+  - argonaut-core
+  - arraybuffer-types
+  - arrays
+  - b64
+  - bifunctors
+  - console
+  - datetime
+  - effect
+  - either
+  - exceptions
+  - foldable-traversable
+  - foreign-object
+  - http-methods
+  - integers
+  - lists
+  - maybe
+  - midi
+  - ordered-collections
+  - parallel
+  - partial
+  - prelude
+  - strings
+  - transformers
+  - tuples
+  test:
+    main: Test.Main
+    dependencies:
+      - node-buffer 
+      - node-fs
+      - spec
+      - spec-node
+workspace:
+  extra_packages: {}
+  package_set:
+    registry: 73.3.0
+    

@@ -1,5 +1,9 @@
 # Changelog
 
+### Version 5.0.0
+
+* Build with spago 1.0.3
+
 ### Version 4.1.0 (2022-05-06)
 
 * Added playPhrase and playMelody 

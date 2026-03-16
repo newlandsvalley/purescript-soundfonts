@@ -17,13 +17,16 @@ For more information, see the [guide](https://github.com/newlandsvalley/purescri
 
 The design in very heavily influenced by danigb's JavaScript soundfont project: [soundfont-player](https://github.com/danigb/soundfont-player) and in fact initial versions of this library simply wrapped his. However, this version minimises the amount of native JavaScript which is still necessary in order to wrap Web-Audio functions.  
 
-## Installation
+## To build
 
-     bower install purescript-soundfonts
+     npm run build
+
+## To test
+
+     npm run test
 
 ## To build the example 
   
-     bower install
      npm run example  
     
 ## Module documentation
