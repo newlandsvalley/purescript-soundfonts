@@ -656,25 +656,7 @@
     "extra_packages": {
       "midi": {
         "git": "https://github.com/newlandsvalley/purescript-midi.git",
-        "ref": "4ac46fc25c4a73ab0c6c879fdb882fb4cb23cef6",
-        "dependencies": [
-          "arrays",
-          "bifunctors",
-          "control",
-          "effect",
-          "either",
-          "foldable-traversable",
-          "integers",
-          "lists",
-          "maybe",
-          "ordered-collections",
-          "prelude",
-          "signal",
-          "string-parsers",
-          "strings",
-          "tuples",
-          "unfoldable"
-        ]
+        "ref": "6e47b9c2a58ff13225f17be71339c3708cd5f98f"
       }
     }
   },
@@ -1290,7 +1272,7 @@
     "midi": {
       "type": "git",
       "url": "https://github.com/newlandsvalley/purescript-midi.git",
-      "rev": "4ac46fc25c4a73ab0c6c879fdb882fb4cb23cef6",
+      "rev": "6e47b9c2a58ff13225f17be71339c3708cd5f98f",
       "dependencies": [
         "arrays",
         "bifunctors",

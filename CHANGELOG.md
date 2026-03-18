@@ -2,6 +2,7 @@
 
 ### Version 5.0.0
 
+* Purescript 0.15.16
 * Build with spago 1.0.3
 
 ### Version 4.1.0 (2022-05-06)
